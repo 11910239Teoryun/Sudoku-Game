@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class SudokuStart extends JFrame{
 	
-	private JLabel label;
+    private JLabel label;
     private JButton start, easy, medium, hard;
     private JFrame frame;
     private JPanel panel;
