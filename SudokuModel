@@ -1,0 +1,33 @@
+import java.util.Random;
+
+public class SudokuModel {
+//	private SudokuPuzzle puzzle;
+	private int[][] board = new int[9][9];
+	private int easy = getRandomNumberInRange(35,45);
+
+	public SudokuModel() {
+		SudokuPuzzle puzzle = new SudokuPuzzle();
+		initGrid();
+	}
+	private void initGrid() {
+		for(int i = 0; i < easy; i++) {
+			int row = getRandomNumberInRange(0,8);
+			int col = getRandomNumberInRange(0,8);
+			if(board[row][col] == 0) {
+				board[row][col] = SudokuPuzzle.getPuzzle()[row][col];
+			}
+			else {
+				i--;
+			}
+		}
+		
+	}
+	public int[][] getBoard(){
+		return board;
+	}
+	//randomize numbers
+	private static int getRandomNumberInRange(int min, int max) {
+		Random r = new Random();
+		return r.nextInt((max - min) + 1) + min;
+	}
+}
