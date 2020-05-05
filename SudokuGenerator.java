@@ -434,6 +434,14 @@ public class SudokuGenerator {
 			}
 			return result;
 		}
+		public int[][] getErrorLocation(int[][] ErrorInput){
+			for (int row =0 ; row < Error.length; row++) {
+				for(int col=0; col<Error[row].length; col++) {
+					ErrorInput[row][col]= Error[row][col];
+					}
+			}
+			return ErrorInput;
+		}
 		}
 
 		
