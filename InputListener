@@ -1,0 +1,49 @@
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JTextField;
+
+public class InputListener implements KeyListener {
+	private JTextField[][] cells = InGame.getCells();
+	private int rowSelected, colSelected;
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		JTextField source = (JTextField) e.getSource();
+		rowSelected = -1;
+	    colSelected = -1;
+
+	    boolean found = false;
+	    for (int row = 0; row < 9 && !found; ++row) {
+	    	for (int col = 0; col < 9 && !found; ++col) {
+	            if (cells[row][col] == source) {
+	               rowSelected = row;
+	               colSelected = col;
+	               found = true;  	            }
+	         }
+	    }
+	    
+		if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            cells[rowSelected][colSelected].setText("");
+        } 
+		if ((e.getKeyChar() >= '1' && e.getKeyChar() <= '9')) {
+			cells[rowSelected][colSelected].setEditable(true);
+			cells[rowSelected][colSelected].setText("");
+		}
+		else {
+             cells[rowSelected][colSelected].setEditable(false);
+        }
+	}	
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+    
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		System.out.print(cells[rowSelected][colSelected].getText());
+	}
+
+	
+
+}
