@@ -1,0 +1,153 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class SudokuStart extends JFrame{
+	
+	private JLabel label;
+    private JButton start, easy, medium, hard;
+    private JFrame frame;
+    private JPanel panel;
+    
+    //COLORS
+    public static final Color SUPERBLACK = new Color(29, 29, 29);
+    public static final Color MEDIUMBLACK = new Color(34, 35, 39);
+    public static final Color LIGHTBLACK = new Color(52, 54, 60);
+    public static final Color WHITE = new Color(254,253,253);
+    public static final Color YELLOW = new Color(238,213,87);
+    public static final Color YELLOWBorder = new Color(131,123,70);
+    public static final Color ORANGE = new Color(239,187,64);
+    //GRID
+    public static final Font FONTGrid = new Font("Titllium Web", Font.BOLD, 40);
+    public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
+    public static final int CELL_SIZE = 60;   // Cell width/height in pixels
+    public static final int CANVAS_WIDTH  = CELL_SIZE * 9;
+    public static final int CANVAS_HEIGHT = CELL_SIZE * 9;
+    
+    public static int buttonHeight = 40, buttonWidth = 40;
+    
+    public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
+    public Font fontez = new Font("Helvetica Neue", Font.BOLD, 25);
+
+    public SudokuStart() {
+    	
+    	frame = new JFrame();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    int height = screenSize.height;
+	    int width = screenSize.width;
+	    frame.setSize(650, 980);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(SUPERBLACK);
+
+		panel = new JPanel();
+		panel.setBorder(new EmptyBorder(new Insets(150, 100, 200, 100)));
+		panel.setBackground(SUPERBLACK);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		
+		label = new JLabel("SUDOKU");
+		label.setHorizontalAlignment(JLabel.CENTER);
+		label.setVerticalAlignment(JLabel.CENTER);
+		label.setForeground(WHITE);
+		label.setFont(FONT);
+		label.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		start = new JButton("START");
+		start.setFont(fontez);
+		start.setBackground(YELLOW);
+		start.setForeground(SUPERBLACK);
+		start.setBounds(220,740,220,70);
+		start.setOpaque(true);
+		start.setBorderPainted(false);
+		
+		easy = new JButton("EASY");
+		easy.setFont(fontez);
+		easy.setBackground(LIGHTBLACK);
+		easy.setForeground(WHITE);
+		easy.setBounds(200,365,260,60);
+		easy.setOpaque(true);
+		easy.setBorderPainted(false);
+		
+		medium = new JButton("MEDIUM");
+		medium.setFont(fontez);
+		medium.setBackground(LIGHTBLACK);
+		medium.setForeground(WHITE);
+		medium.setBounds(200,465,260,60);
+		medium.setOpaque(true);
+		medium.setBorderPainted(false);
+		
+		hard = new JButton("HARD");
+		hard.setFont(fontez);
+		hard.setBackground(LIGHTBLACK);
+		hard.setForeground(WHITE);
+		hard.setBounds(200,565,260,60);
+		hard.setOpaque(true);
+		hard.setBorderPainted(false);
+		
+
+		panel.add(label);
+		frame.add(start);
+		frame.add(easy);
+		frame.add(medium);
+		frame.add(hard);
+		frame.add(panel);	
+		frame.setVisible(true);
+		
+		easy.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        easy.setBackground(YELLOW);
+		        easy.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        easy.setBackground(LIGHTBLACK);
+		        easy.setForeground(WHITE);
+		    }
+		});
+		
+		medium.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        medium.setBackground(YELLOW);
+		        medium.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        medium.setBackground(LIGHTBLACK);
+		        medium.setForeground(WHITE);
+		    }
+		});
+		
+		hard.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        hard.setBackground(YELLOW);
+		        hard.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        hard.setBackground(LIGHTBLACK);
+		        hard.setForeground(WHITE);
+		    }
+		});
+		
+		start.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        start.setBackground(ORANGE);
+		        start.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        start.setBackground(YELLOW);
+		        start.setForeground(SUPERBLACK);
+		    }
+		});
+		
+        start.addActionListener(new ActionListener() {
+        	@Override
+            public void actionPerformed(ActionEvent e) {
+                //When press startButton, it will create a pop-out function
+            	frame.dispose();
+            	new InGame();
+        	}
+        });
+
+    }
+    
+}
+
