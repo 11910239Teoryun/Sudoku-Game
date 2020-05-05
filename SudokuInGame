@@ -40,7 +40,7 @@ public class SudokuInGame {
     public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
     //GRID
-    public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/30));
+    public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/33));
     public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
     public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
     public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/30));
