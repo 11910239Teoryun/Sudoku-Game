@@ -20,13 +20,16 @@ import javax.swing.border.MatteBorder;
 
 import model.SudokuModel;
 
-public class InGame {
+public class SudokuInGame {
 
     private JButton easy, medium, hard, hint, undo, pause;
     private JFrame frame;
     private JPanel panel, Panel;
     public static JTextField[][] cells = new JTextField[9][9];
     public JPanel[][]  grid = new JPanel[3][3];
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int height = screenSize.height;
+    public int width = screenSize.width;
     
     //COLORS
     public static final Color SUPERBLACK = new Color(29, 29, 29);
@@ -37,27 +40,22 @@ public class InGame {
     public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
     //GRID
-    public static final Font FONTGrid = new Font("Titllium Web", Font.BOLD, 35);
-    public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
-    public static final int CELL_SIZE = 60;   // Cell width/height in pixels
-    public static final int CANVAS_WIDTH  = CELL_SIZE * 9;
-    public static final int CANVAS_HEIGHT = CELL_SIZE * 9;
+    public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/30));
+    public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
+    public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
+    public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/30));
     
-    public static int buttonHeight = 40, buttonWidth = 40;
-    
-    public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
-    public Font fontez = new Font("Helvetica Neue", Font.BOLD, 35);
-    
-    public InGame() {
+    public SudokuInGame() {
     	
     	frame = new JFrame();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    frame.setSize(650, 940);
+    	
+	    frame.setSize((int) (width/2.58), (int) (height/1.07));
 		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setBackground(SUPERBLACK);
 
 		panel = new JPanel();
-		panel.setBorder(new EmptyBorder(new Insets(150, 100, 200, 100)));
+		//X,Y,Length,Height
+		panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));
 		panel.setBackground(SUPERBLACK);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
@@ -68,7 +66,7 @@ public class InGame {
 		Panel = new JPanel(new GridLayout(3,3));
         Panel.setBorder(BorderFactory.createLineBorder(YELLOW,3));
         Panel.setBackground(YELLOW);
-        Panel.setBounds(42,162,570,570); //(X,Y,Width,Height)
+        Panel.setBounds((int)(width/40),(int)(height/6.48),(int)(height/1.84),(int)(height/1.84)); //(X,Y,Width,Height)
        
         for(int i = 0 ; i < 3; i++) {
     		for(int j = 0; j < 3; j++) {
@@ -108,12 +106,16 @@ public class InGame {
 		
     	
     	//mode
+		int ModeButtonX = (int)(width/8.61);
+		int ModeButtonY = (int)(height/18.42);
+		int ModeButtonLength = (int)(width/6.46);
+		int ModeButtonHeight = (int)(height/17.5);
 		
     	easy = new JButton("EASY");
     	easy.setFont(fontez);
     	easy.setBackground(LIGHTBLACK);
     	easy.setForeground(WHITE);
-    	easy.setBounds(195,57,260,60);
+    	easy.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
     	easy.setOpaque(true);
     	easy.setBorderPainted(false);
     	
@@ -121,7 +123,7 @@ public class InGame {
 		medium.setFont(fontez);
 		medium.setBackground(LIGHTBLACK);
 		medium.setForeground(WHITE);
-		medium.setBounds(195,57,260,60);
+		medium.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
 		medium.setOpaque(true);
 		medium.setBorderPainted(false);
 		
@@ -129,39 +131,41 @@ public class InGame {
 		hard.setFont(fontez);
 		hard.setBackground(LIGHTBLACK);
 		hard.setForeground(WHITE);
-		hard.setBounds(195,57,260,60);
+		hard.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
 		hard.setOpaque(true);
 		hard.setBorderPainted(false);
 		
 		//hint, undo, pause
-		
+		int imagedim = (int) (height/23.33);
+		int boundsY = (int)(height/1.32);
+		int OptionDim = (int)(width/22.4);
 		ImageIcon Bulb = new ImageIcon("Hint.png");
 		Image img = Bulb.getImage() ;  
-		Image newimg = img.getScaledInstance( 45, 45,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Image newimg = img.getScaledInstance( imagedim, imagedim,  java.awt.Image.SCALE_SMOOTH ) ;  
 		Bulb = new ImageIcon( newimg );
 		hint = new JButton(Bulb);
 		hint.setBackground(LIGHTBLACK);
-		hint.setBounds(102,782,75,75);
+		hint.setBounds((int)(width/16.47),boundsY,OptionDim,OptionDim);
 		hint.setOpaque(true);
 		hint.setBorderPainted(false);
 		
 		ImageIcon Undo = new ImageIcon("Undo.png");
 		Image img1 = Undo.getImage() ;  
-		Image newimg1 = img1.getScaledInstance( 40, 40,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Image newimg1 = img1.getScaledInstance( (int)(height/26.25), (int)(height/26.25),  java.awt.Image.SCALE_SMOOTH ) ;  
 		Undo = new ImageIcon( newimg1 );
 		undo = new JButton(Undo);
 		undo.setBackground(LIGHTBLACK);
-		undo.setBounds(288,782,75,75);
+		undo.setBounds((int)(width/5.83),boundsY,OptionDim,OptionDim);
 		undo.setOpaque(true);
 		undo.setBorderPainted(false);
 		
 		ImageIcon Pause = new ImageIcon("Pause.png");
 		Image img2 = Pause.getImage() ;  
-		Image newimg2 = img2.getScaledInstance( 45, 45,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Image newimg2 = img2.getScaledInstance( imagedim, imagedim,  java.awt.Image.SCALE_SMOOTH ) ;  
 		Pause = new ImageIcon( newimg2 );
 		pause = new JButton(Pause);
 		pause.setBackground(LIGHTBLACK);
-		pause.setBounds(478,782,75,75);
+		pause.setBounds((int)(width/3.51),boundsY,OptionDim,OptionDim);
 		pause.setOpaque(true);
 		pause.setBorderPainted(false);
 		
@@ -211,7 +215,7 @@ public class InGame {
     }
     
     public static void main(String[] args) {
-    	new InGame();
+    	new SudokuInGame();
     }
 
 }
