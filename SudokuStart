@@ -19,53 +19,53 @@ public class SudokuStart extends JFrame{
     public static final Color YELLOW = new Color(238,213,87);
     public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int height = screenSize.height;
+    public int width = screenSize.width;
     //GRID
-    public static final Font FONTGrid = new Font("Titllium Web", Font.BOLD, 40);
-    public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
-    public static final int CELL_SIZE = 60;   // Cell width/height in pixels
-    public static final int CANVAS_WIDTH  = CELL_SIZE * 9;
-    public static final int CANVAS_HEIGHT = CELL_SIZE * 9;
+    public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/30));
+    public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
+    public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
+    public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/42));
     
-    public static int buttonHeight = 40, buttonWidth = 40;
-    
-    public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
-    public Font fontez = new Font("Helvetica Neue", Font.BOLD, 25);
-
     public SudokuStart() {
     	
     	frame = new JFrame();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    int height = screenSize.height;
-	    int width = screenSize.width;
-	    frame.setSize(650, 980);
+		
+	    frame.setSize((int) (width/2.58), (int) (height/1.07));
 		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setBackground(SUPERBLACK);
 
 		panel = new JPanel();
-		panel.setBorder(new EmptyBorder(new Insets(150, 100, 200, 100)));
+		//X,Y,Length,Height
+		panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));
 		panel.setBackground(SUPERBLACK);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
-		label = new JLabel("SUDOKU");
+		label = new JLabel("SODUKU");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setVerticalAlignment(JLabel.CENTER);
 		label.setForeground(WHITE);
 		label.setFont(FONT);
 		label.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
+		
 		start = new JButton("START");
 		start.setFont(fontez);
 		start.setBackground(YELLOW);
 		start.setForeground(SUPERBLACK);
-		start.setBounds(220,740,220,70);
+		start.setBounds((int)(width/7.3),(int)(height/1.42),(int)(width/8.4),(int)(height/15));
 		start.setOpaque(true);
 		start.setBorderPainted(false);
 		
+		int ModeBX = (int)(width/8.4);
+		int ModeBLength = (int)(width/6.46);
+		int ModeBHeight = (int)(height/17.5);
 		easy = new JButton("EASY");
 		easy.setFont(fontez);
 		easy.setBackground(LIGHTBLACK);
 		easy.setForeground(WHITE);
-		easy.setBounds(200,365,260,60);
+		easy.setBounds(ModeBX,(int)(height/2.87),ModeBLength,ModeBHeight);
 		easy.setOpaque(true);
 		easy.setBorderPainted(false);
 		
@@ -73,7 +73,7 @@ public class SudokuStart extends JFrame{
 		medium.setFont(fontez);
 		medium.setBackground(LIGHTBLACK);
 		medium.setForeground(WHITE);
-		medium.setBounds(200,465,260,60);
+		medium.setBounds(ModeBX,(int)(height/2.25),ModeBLength,ModeBHeight);
 		medium.setOpaque(true);
 		medium.setBorderPainted(false);
 		
@@ -81,7 +81,7 @@ public class SudokuStart extends JFrame{
 		hard.setFont(fontez);
 		hard.setBackground(LIGHTBLACK);
 		hard.setForeground(WHITE);
-		hard.setBounds(200,565,260,60);
+		hard.setBounds(ModeBX,(int)(height/1.85),ModeBLength,ModeBHeight);
 		hard.setOpaque(true);
 		hard.setBorderPainted(false);
 		
@@ -93,6 +93,7 @@ public class SudokuStart extends JFrame{
 		frame.add(hard);
 		frame.add(panel);	
 		frame.setVisible(true);
+	
 		
 		easy.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -143,7 +144,7 @@ public class SudokuStart extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 //When press startButton, it will create a pop-out function
             	frame.dispose();
-            	new InGame();
+            	new SudokuInGame();
         	}
         });
 
