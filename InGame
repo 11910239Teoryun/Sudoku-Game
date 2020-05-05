@@ -1,0 +1,217 @@
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+
+import model.SudokuModel;
+
+public class InGame {
+
+    private JButton easy, medium, hard, hint, undo, pause;
+    private JFrame frame;
+    private JPanel panel, Panel;
+    public static JTextField[][] cells = new JTextField[9][9];
+    public JPanel[][]  grid = new JPanel[3][3];
+    
+    //COLORS
+    public static final Color SUPERBLACK = new Color(29, 29, 29);
+    public static final Color MEDIUMBLACK = new Color(34, 35, 39);
+    public static final Color LIGHTBLACK = new Color(52, 54, 60);
+    public static final Color WHITE = new Color(254,253,253);
+    public static final Color YELLOW = new Color(238,213,87);
+    public static final Color YELLOWBorder = new Color(131,123,70);
+    public static final Color ORANGE = new Color(239,187,64);
+    //GRID
+    public static final Font FONTGrid = new Font("Titllium Web", Font.BOLD, 35);
+    public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
+    public static final int CELL_SIZE = 60;   // Cell width/height in pixels
+    public static final int CANVAS_WIDTH  = CELL_SIZE * 9;
+    public static final int CANVAS_HEIGHT = CELL_SIZE * 9;
+    
+    public static int buttonHeight = 40, buttonWidth = 40;
+    
+    public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
+    public Font fontez = new Font("Helvetica Neue", Font.BOLD, 35);
+    
+    public InGame() {
+    	
+    	frame = new JFrame();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    frame.setSize(650, 940);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(SUPERBLACK);
+
+		panel = new JPanel();
+		panel.setBorder(new EmptyBorder(new Insets(150, 100, 200, 100)));
+		panel.setBackground(SUPERBLACK);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		
+		
+		
+		//Grid
+
+		Panel = new JPanel(new GridLayout(3,3));
+        Panel.setBorder(BorderFactory.createLineBorder(YELLOW,3));
+        Panel.setBackground(YELLOW);
+        Panel.setBounds(42,162,570,570); //(X,Y,Width,Height)
+       
+        for(int i = 0 ; i < 3; i++) {
+    		for(int j = 0; j < 3; j++) {
+    			grid[i][j] = new JPanel(new GridLayout(3,3,1,1));
+    			grid[i][j].setBorder(new MatteBorder(2,2,2,2,YELLOW));
+    			grid[i][j].setBackground(SUPERBLACK);
+    			Panel.add(grid[i][j]);
+    		}
+    	}
+        
+        SudokuModel puzzle = new SudokuModel();
+        InputListener listener = new InputListener();
+        int[][] board = puzzle.getBoard();
+    	for(int i = 0; i < 9; i++) {
+    		for(int j = 0; j < 9; j++) {
+    			cells[i][j] = new JTextField();
+    			if(board[i][j] != 0) {
+    				cells[i][j].setText(board[i][j]+""); 
+    				cells[i][j].setEditable(false);
+        			cells[i][j].setBackground(MEDIUMBLACK);
+    				cells[i][j].setForeground(WHITE);
+    			}
+    			else {
+    				cells[i][j].setBackground(MEDIUMBLACK);
+    				cells[i][j].setForeground(YELLOW);
+    				cells[i][j].addKeyListener(listener);
+    			}
+    			int row = i/3;
+				int col = j/3;
+				cells[i][j].setHorizontalAlignment(JTextField.CENTER);
+				cells[i][j].setBorder(BorderFactory.createLineBorder(YELLOWBorder,1));
+				cells[i][j].setFont(FONTGrid);
+				grid[row][col].add(cells[i][j]);	
+
+    		}
+    	};
+		
+    	
+    	//mode
+		
+    	easy = new JButton("EASY");
+    	easy.setFont(fontez);
+    	easy.setBackground(LIGHTBLACK);
+    	easy.setForeground(WHITE);
+    	easy.setBounds(195,57,260,60);
+    	easy.setOpaque(true);
+    	easy.setBorderPainted(false);
+    	
+		medium = new JButton("MEDIUM");
+		medium.setFont(fontez);
+		medium.setBackground(LIGHTBLACK);
+		medium.setForeground(WHITE);
+		medium.setBounds(195,57,260,60);
+		medium.setOpaque(true);
+		medium.setBorderPainted(false);
+		
+		hard = new JButton("HARD");
+		hard.setFont(fontez);
+		hard.setBackground(LIGHTBLACK);
+		hard.setForeground(WHITE);
+		hard.setBounds(195,57,260,60);
+		hard.setOpaque(true);
+		hard.setBorderPainted(false);
+		
+		//hint, undo, pause
+		
+		ImageIcon Bulb = new ImageIcon("Hint.png");
+		Image img = Bulb.getImage() ;  
+		Image newimg = img.getScaledInstance( 45, 45,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Bulb = new ImageIcon( newimg );
+		hint = new JButton(Bulb);
+		hint.setBackground(LIGHTBLACK);
+		hint.setBounds(102,782,75,75);
+		hint.setOpaque(true);
+		hint.setBorderPainted(false);
+		
+		ImageIcon Undo = new ImageIcon("Undo.png");
+		Image img1 = Undo.getImage() ;  
+		Image newimg1 = img1.getScaledInstance( 40, 40,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Undo = new ImageIcon( newimg1 );
+		undo = new JButton(Undo);
+		undo.setBackground(LIGHTBLACK);
+		undo.setBounds(288,782,75,75);
+		undo.setOpaque(true);
+		undo.setBorderPainted(false);
+		
+		ImageIcon Pause = new ImageIcon("Pause.png");
+		Image img2 = Pause.getImage() ;  
+		Image newimg2 = img2.getScaledInstance( 45, 45,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Pause = new ImageIcon( newimg2 );
+		pause = new JButton(Pause);
+		pause.setBackground(LIGHTBLACK);
+		pause.setBounds(478,782,75,75);
+		pause.setOpaque(true);
+		pause.setBorderPainted(false);
+		
+		//adding buttons to frame
+		frame.add(easy);
+		frame.add(hint);
+		frame.add(undo);
+		frame.add(pause);
+		frame.add(Panel);
+		frame.add(panel);	
+		frame.setVisible(true);
+		frame.setResizable(false);
+		
+		//mouse hovering over effect
+		
+		hint.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        hint.setBackground(YELLOW);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        hint.setBackground(LIGHTBLACK);
+		    }
+		});
+		
+		undo.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        undo.setBackground(YELLOW);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        undo.setBackground(LIGHTBLACK);
+		    }
+		});
+		
+		pause.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        pause.setBackground(YELLOW);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        pause.setBackground(LIGHTBLACK);
+		    }
+		});
+		
+    }
+    
+    public static JTextField[][] getCells() {
+    	return cells;
+    }
+    
+    public static void main(String[] args) {
+    	new InGame();
+    }
+
+}
