@@ -1,0 +1,12 @@
+import view.SudokuStart;
+
+
+public class Sudoku {
+	public static void main(String[] args) {
+
+        SudokuStart view = new SudokuStart();
+        view.setVisible(true);
+        
+	}
+
+}
