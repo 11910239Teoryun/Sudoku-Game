@@ -64,14 +64,14 @@ public class SudokuInGame {
 		//Grid
 
 		Panel = new JPanel(new GridLayout(3,3));
-        Panel.setBorder(BorderFactory.createLineBorder(YELLOW,3));
+        Panel.setBorder(BorderFactory.createLineBorder(YELLOW,2));
         Panel.setBackground(YELLOW);
         Panel.setBounds((int)(width/40),(int)(height/6.48),(int)(height/1.84),(int)(height/1.84)); //(X,Y,Width,Height)
        
         for(int i = 0 ; i < 3; i++) {
     		for(int j = 0; j < 3; j++) {
     			grid[i][j] = new JPanel(new GridLayout(3,3,1,1));
-    			grid[i][j].setBorder(new MatteBorder(2,2,2,2,YELLOW));
+    			grid[i][j].setBorder(new MatteBorder(1,1,1,1,YELLOW));
     			grid[i][j].setBackground(SUPERBLACK);
     			Panel.add(grid[i][j]);
     		}
