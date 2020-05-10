@@ -1,0 +1,143 @@
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+
+public class SudokuWin {
+
+	private JPanel panel;
+	private JButton yes, no, congrats, win, onemore;
+	private JFrame frame;
+	private JLabel line;
+	
+	
+	//COLORS
+	public static final Color SUPERBLACK = new Color(29, 29, 29);
+	public static final Color MEDIUMBLACK = new Color(34, 35, 39);
+	public static final Color LIGHTBLACK = new Color(52, 54, 60);
+	public static final Color WHITE = new Color(254,253,253);
+	public static final Color YELLOW = new Color(238,213,87);
+	public static final Color YELLOWBorder = new Color(131,123,70);
+	public static final Color ORANGE = new Color(239,187,64);
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int height = screenSize.height;
+    public int width = screenSize.width;
+	
+	//FONT
+	public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
+	public static final Font CONGRATS = new Font("Helvetica Neue", Font.PLAIN, 45);
+	public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
+	public Font One = new Font("Helvetica Neue", Font.BOLD, 30);
+	public Font option = new Font("Helvetica Neue", Font.BOLD, 30);
+	
+	public SudokuWin() {
+		
+		frame = new JFrame();		
+	    frame.setSize((int) (width/2.58), (int) (height/1.07));
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(SUPERBLACK);
+		
+		panel = new JPanel();
+		//(X,Y,Width,Height)
+		panel.setBorder(new EmptyBorder(new Insets((int)(width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));		
+		panel.setBackground(MEDIUMBLACK);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		
+		line = new JLabel();
+		line.setBounds((int)(width/42),(int)(height/35),(int)(width/2.94),(int)(height/1.17));
+		int x  = (int)(width/560);
+		line.setBorder(new MatteBorder(x,x,x,x,YELLOW));
+		
+	    congrats = new JButton("CONGRATULATIONS!");
+		congrats.setFont(CONGRATS);
+		congrats.setForeground(YELLOW);
+		congrats.setBounds((int)(width/30.55),(int)(height/3.68),(int)(width/3.05),(int)(height/12.35));
+		congrats.setBorderPainted(false);
+		
+		int dimx = (int)(width/3.36);
+		int dimy = (int)(height/16.15);
+		
+		win = new JButton("YOU WIN!");
+		win.setFont(CONGRATS);	
+		win.setForeground(YELLOW);
+		win.setBounds((int)(width/22.4),(int)(height/2.88),dimx,dimy);
+		win.setBorderPainted(false);
+		
+		onemore = new JButton("PLAY ONE MORE?");
+		onemore.setFont(One);	
+		onemore.setForeground(WHITE);
+		onemore.setBounds((int)(width/19.76),(int)(height/2.36),dimx,dimy);
+		onemore.setBorderPainted(false);
+		
+		int optionx = (int)(height/1.92);
+		int optionwidth = (int)(width/12);
+		int optionheight = (int)(height/17.5);
+		
+		no = new JButton("NO");
+		no.setFont(option);
+		no.setBounds((int)(width/10.5),optionx,optionwidth,optionheight);
+		no.setForeground(SUPERBLACK);
+		no.setBackground(YELLOW);
+		no.setOpaque(true);
+		no.setBorderPainted(false);
+		
+		yes = new JButton("YES");
+		yes.setFont(option);
+		yes.setBounds((int)(width/4.8),optionx,optionwidth,optionheight);
+		yes.setForeground(SUPERBLACK);
+		yes.setBackground(YELLOW);
+		yes.setOpaque(true);
+		yes.setBorderPainted(false);			
+
+		frame.add(yes);
+		frame.add(line);
+		frame.add(yes);
+		frame.add(no);
+		frame.add(onemore);
+		frame.add(congrats);
+		frame.add(win);
+		frame.add(panel);	
+		frame.setVisible(true);
+		
+		yes.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        yes.setBackground(ORANGE);
+		        yes.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        yes.setBackground(YELLOW);
+		        yes.setForeground(SUPERBLACK);
+		    }
+		});
+		
+		no.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        no.setBackground(ORANGE);
+		        no.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        no.setBackground(YELLOW);
+		        no.setForeground(SUPERBLACK);
+		    }
+		});
+		
+		
+	}
+	
+	public static void main(String[] args) {
+		new SudokuWin();
+		
+	} 
+
+}
