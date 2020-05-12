@@ -1,27 +1,23 @@
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JTextField;
 
-public class InputListener implements KeyListener {
-	private JTextField[][] cells = InGame.getCells();
+public class InputListener implements KeyListener,FocusListener{
+	private JTextField[][] cells = SudokuGame.getCells();
 	private int rowSelected, colSelected;
+	private int[][] board = SudokuGame.getBoard(); //the puzzle
+	private int[][] sudoku = SudokuGame.getSudokuBoard(); //the sudoku with unique solution
+	private boolean isGameEnded = false;
+	private boolean selecthint;
+	private static int hintleft;
+	private static int hintclick;
+
+
 	
 	@Override
 	public void keyTyped(KeyEvent e) {
-		JTextField source = (JTextField) e.getSource();
-		rowSelected = -1;
-	    colSelected = -1;
-
-	    boolean found = false;
-	    for (int row = 0; row < 9 && !found; ++row) {
-	    	for (int col = 0; col < 9 && !found; ++col) {
-	            if (cells[row][col] == source) {
-	               rowSelected = row;
-	               colSelected = col;
-	               found = true;  	            }
-	         }
-	    }
-	    
 		if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
             cells[rowSelected][colSelected].setText("");
         } 
@@ -32,6 +28,7 @@ public class InputListener implements KeyListener {
 		else {
              cells[rowSelected][colSelected].setEditable(false);
         }
+	    
 	}	
 
 	@Override
@@ -41,9 +38,58 @@ public class InputListener implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		System.out.print(cells[rowSelected][colSelected].getText());
+		if(!cells[rowSelected][colSelected].getText().contentEquals("")) {
+			board[rowSelected][colSelected] = Integer.parseInt(cells[rowSelected][colSelected].getText());
+			isGameEnded = isGameEnded();
+		}
+		if(isGameEnded) {
+			SudokuGame.disposeFrame();
+			new SudokuWin();
+		}
 	}
 
-	
+	public boolean isGameEnded() {
+		isGameEnded = true;
+		for(int i = 0; i < 9; i++) {
+			for(int j = 0; j < 9; j++) {
+				if(board[i][j] != sudoku[i][j]) {
+					isGameEnded = false;
+					break;
+				}
+			}
+		}
+		return isGameEnded;
+	}
 
+	@Override
+	public void focusGained(FocusEvent e) {
+		// TODO Auto-generated method stub
+	    	JTextField source = (JTextField) e.getSource();
+	    	rowSelected = -1;
+	    	colSelected = -1;
+	    	selecthint = SudokuGame.getUseHint();
+	    	hintleft = SudokuGame.getHintLeft();
+	    	hintclick = SudokuGame.getHintClick();
+
+	    	boolean found = false;
+	    	for (int row = 0; row < 9 && !found; ++row) {
+	    		for (int col = 0; col < 9 && !found; ++col) {
+	            	if (cells[row][col] == source) {
+	               		rowSelected = row;
+	               		colSelected = col;
+	               		found = true;  	           
+	               		}
+	         	}
+	    	}
+	    if(selecthint && hintleft>0 && hintclick%2!=0) {
+			cells[rowSelected][colSelected].setText(sudoku[rowSelected][colSelected]+"");
+			cells[rowSelected][colSelected].setEditable(false);
+			SudokuGame.resetHint();
+			}	
+		}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		// TODO Auto-generated method stub
+	}
 }
