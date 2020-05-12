@@ -1,9 +1,9 @@
+import java.util.ArrayList;
 import java.util.Random;
 
 public class SudokuGenerator {
 	private int[][] Sudoku = new int [9][9];
 	private int[][] Puzzle = new int[9][9];
-	private int[][] Error = new int [27][4];
 	
 	public SudokuGenerator(){		
 		Random r = new Random();
@@ -324,11 +324,13 @@ public class SudokuGenerator {
 		return Sudoku;
 	}
 	public int[][] sudokuPuzzle(int level){//level 1 for easy, 2 for medium, and 3 for hard;
-		Puzzle = Sudoku.clone();
-			int row =0;
-			int col =0;
-			int blanks = level*2;
+			int iter =0;
+			int blanks = level*2+1;
 			Random loopr = new Random();
+			//while(iter!=level) {
+				Puzzle = Sudoku.clone();
+			int row=0;
+			int col=0;
 			while(row<9) {
 				while(col<9) {
 					int loop2 = loopr.nextInt(blanks) + 1;
@@ -339,21 +341,34 @@ public class SudokuGenerator {
 					if(Puzzle[row+x][col+y]!=0) {
 						Puzzle[row+x][col+y]=0;
 					}
+					else {
+						loop2++;
+					}
 					}
 					col=col+3;
 				}
 				row = row+3;
 				col=0;
 			}
+			//int [][] solveTest = new int [9][9];
+			//for(int sRow =0; sRow<Puzzle.length;sRow++) {
+				//for(int sCol=0; sCol<Puzzle[col].length;sCol++) {
+					//solveTest[sRow][sCol]=Puzzle[sRow][sCol];
+				//}
+			//}
+			//usableSudokuSolver solve = new usableSudokuSolver();
+			//iter = solve.solveFromList(solveTest);
+			//if(iter==level) {
+				//break;
+			//}
+			//}
 		return Puzzle;
 		}
 	
-		public boolean checkValidSudoku(int[][]s) {//here the s mean the puzzle that the users has inputed
+		public boolean hasGameEnded(int[][]s) {//here the s mean the puzzle that the users has inputed
 			boolean result = true;
 			boolean original = true;
 			boolean noValue = false;
-			int x =0;
-			int y =0;//coordinates for the error matrix so we can check for duplicate errors
 			//null checkers
 			for(int row =0; row < 9; row++) {
 				for(int col =0; col < 9; col++) {
@@ -376,74 +391,18 @@ public class SudokuGenerator {
 					}
 					}
 				if(original ==false) {
-					break;
+					result = false;
 				}
-			}
-			
-			if(original == false) {
-			// row checker
-			for(int row1 = 0; row1 < 9; row1++) {
-			   for(int col = 0; col < 8; col++) {
-			      for(int col2 = col + 1; col2 < 9; col2++) {
-			         if(s[row1][col]==s[row1][col2]) {
-			            result = false;
-			           Error[x][y]= row1; y++;
-			           Error[x][y]=col;y++;
-			           Error[x][y]= row1; y++;
-			           Error[x][y]=col2;
-			           x++; y=0;//putting the values in this formate [original x][original y][duplicate x][duplicate y]
-			         }
-			      }
-			   }
-			}
-
-			// column checker
-			for(int col = 0; col < 9; col++) {
-			   for(int row3 = 0; row3 < 8; row3++) {
-			      for(int row2 = row3 + 1; row2 < 9; row2++) {
-			         if(s[row3][col]==s[row2][col]) {
-			            result = false;
-				           Error[x][y]= row3; y++;
-				           Error[x][y]=col;y++;
-				           Error[x][y]= row2; y++;
-				           Error[x][y]=col;
-				           x++; y=0;
-			         }
-			      }
-			   }
-			}
-
-			// grid checker
-			for(int row4 = 0; row4 < 9; row4 += 3) {
-			   for(int col = 0; col < 9; col += 3) {
-			      // row, col is start of the 3 by 3 grid
-			      for(int pos = 0; pos < 8; pos++) {
-			         for(int pos2 = pos + 1; pos2 < 9; pos2++) {
-			            if(s[row4 + pos%3][col + pos/3]==s[row4 + pos2%3][col + pos2/3])
-			               result= false;
-				           Error[x][y]= row4 + pos%3; y++;
-				           Error[x][y]=col + pos/3;y++;
-				           Error[x][y]= row4 + pos2%3; y++;
-				           Error[x][y]=col + pos2/3;
-				           x++; y=0;
-			         }
-			      }
-			   }
-			}
 			}
 			}
 			return result;
 		}
-		public int[][] getErrorLocation(int[][] ErrorInput){
-			for (int row =0 ; row < Error.length; row++) {
-				for(int col=0; col<Error[row].length; col++) {
-					ErrorInput[row][col]= Error[row][col];
-					}
-			}
-			return ErrorInput;
-		}
-		}
 
+	public int getHints(int row, int col) {
+		int Hints=Sudoku[row][col];
+		return Hints;
+	}
+	}
 		
 		
 	
