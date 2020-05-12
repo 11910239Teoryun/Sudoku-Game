@@ -1,12 +1,12 @@
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -18,18 +18,37 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import model.SudokuModel;
+import view.InputListener;
+import model.SudokuGenerator;
 
-public class SudokuInGame {
+public class SudokuGame {
 
-    private JButton easy, medium, hard, hint, undo, pause;
-    private JFrame frame;
+    private JButton status;
+	private static JButton hint;
+	private JButton undo;
+	private JButton pause;
+    private static JLabel hintNum;
+    private static JFrame frame;
     private JPanel panel, Panel;
     public static JTextField[][] cells = new JTextField[9][9];
     public JPanel[][]  grid = new JPanel[3][3];
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public int height = screenSize.height;
     public int width = screenSize.width;
+    public static int hintleft = 3;
+
+    public static SudokuGenerator puzzle;
+    public static int[][] board;
+    public static int[][] sudoku = new int[9][9];
+    
+    //Select
+    public static boolean selecthint = false, selectundo = false, selectpause = false;
+    
+    //Clicks
+    private static int hintclick = 0,undoclick = 0,pauseclick = 0;
+    
+
+
     
     //COLORS
     public static final Color SUPERBLACK = new Color(29, 29, 29);
@@ -39,13 +58,16 @@ public class SudokuInGame {
     public static final Color YELLOW = new Color(238,213,87);
     public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
+    
     //GRID
     public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/33));
     public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
     public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
     public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/30));
+    public Font fonthint = new Font("Helvetica Neue", Font.BOLD, (int)(width/76));
+
     
-    public SudokuInGame() {
+    public SudokuGame(int mode) {
     	
     	frame = new JFrame();
     	
@@ -76,11 +98,12 @@ public class SudokuInGame {
     			Panel.add(grid[i][j]);
     		}
     	}
+        status = new JButton();
+    	setStatus(mode, status);
+
         
-        SudokuModel puzzle = new SudokuModel();
         InputListener listener = new InputListener();
-        int[][] board = puzzle.getBoard();
-    	for(int i = 0; i < 9; i++) {
+     	for(int i = 0; i < 9; i++) {
     		for(int j = 0; j < 9; j++) {
     			cells[i][j] = new JTextField();
     			if(board[i][j] != 0) {
@@ -92,6 +115,7 @@ public class SudokuInGame {
     			else {
     				cells[i][j].setBackground(MEDIUMBLACK);
     				cells[i][j].setForeground(YELLOW);
+    				cells[i][j].addFocusListener(listener);
     				cells[i][j].addKeyListener(listener);
     			}
     			int row = i/3;
@@ -103,38 +127,7 @@ public class SudokuInGame {
 
     		}
     	};
-		
-    	
-    	//mode
-		int ModeButtonX = (int)(width/8.61);
-		int ModeButtonY = (int)(height/18.42);
-		int ModeButtonLength = (int)(width/6.46);
-		int ModeButtonHeight = (int)(height/17.5);
-		
-    	easy = new JButton("EASY");
-    	easy.setFont(fontez);
-    	easy.setBackground(LIGHTBLACK);
-    	easy.setForeground(WHITE);
-    	easy.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
-    	easy.setOpaque(true);
-    	easy.setBorderPainted(false);
-    	
-		medium = new JButton("MEDIUM");
-		medium.setFont(fontez);
-		medium.setBackground(LIGHTBLACK);
-		medium.setForeground(WHITE);
-		medium.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
-		medium.setOpaque(true);
-		medium.setBorderPainted(false);
-		
-		hard = new JButton("HARD");
-		hard.setFont(fontez);
-		hard.setBackground(LIGHTBLACK);
-		hard.setForeground(WHITE);
-		hard.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
-		hard.setOpaque(true);
-		hard.setBorderPainted(false);
-		
+    	//mode	
 		//hint, undo, pause
 		int imagedim = (int) (height/23.33);
 		int boundsY = (int)(height/1.32);
@@ -148,6 +141,13 @@ public class SudokuInGame {
 		hint.setBounds((int)(width/16.47),boundsY,OptionDim,OptionDim);
 		hint.setOpaque(true);
 		hint.setBorderPainted(false);
+		
+		hintNum = new JLabel(Integer.toString(hintleft),JLabel.CENTER);
+		hintNum.setBackground(YELLOW);
+		hintNum.setForeground(SUPERBLACK);
+		hintNum.setFont(fonthint);
+		hintNum.setOpaque(true);
+		hintNum.setBounds((int)(width/2.89),(int)(height/105),(int)(width/30),(int)(width/30));
 		
 		ImageIcon Undo = new ImageIcon("Undo.png");
 		Image img1 = Undo.getImage() ;  
@@ -170,7 +170,8 @@ public class SudokuInGame {
 		pause.setBorderPainted(false);
 		
 		//adding buttons to frame
-		frame.add(easy);
+		frame.add(hintNum);
+		frame.add(status);
 		frame.add(hint);
 		frame.add(undo);
 		frame.add(pause);
@@ -180,42 +181,149 @@ public class SudokuInGame {
 		frame.setResizable(false);
 		
 		//mouse hovering over effect
-		
 		hint.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        hint.setBackground(YELLOW);
+		    	if(!selecthint) setHover(hint);
 		    }
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        hint.setBackground(LIGHTBLACK);
+		    	if(!selecthint) resetButton(hint);
 		    }
 		});
+		hint.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	hintclick++;
+	        	if(hintleft<=0) {
+	        		new Hints();
+	        	}
+	        	else {
+	        		if(hintclick %2 != 0) {
+			        	selecthint = true;
+			        	setSelect(hint);
+		        	}
+		        	else {
+		        		selecthint = false;
+		        		resetButton(hint);
+		        	}
+	        	}
+	        }
+	    });
 		
 		undo.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        undo.setBackground(YELLOW);
+		    	if(!selectundo) setHover(undo);
 		    }
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        undo.setBackground(LIGHTBLACK);
+		    	if(!selectundo) resetButton(undo);
 		    }
 		});
+		undo.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	
+	        }
+	    });
 		
 		pause.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        pause.setBackground(YELLOW);
+		        if(!selectpause) setHover(pause);
 		    }
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        pause.setBackground(LIGHTBLACK);
+		        if(!selectpause) resetButton(pause);
 		    }
 		});
+		pause.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	pauseclick++;
+	        	if(pauseclick %2 != 0) {
+		        	selectpause = true;
+
+		        	setSelect(pause);
+	        	}
+	        	else {
+		        	selectpause = false;
+	        		resetButton(pause);
+	        	}
+	        }
+	    });
 		
     }
     
-    public static JTextField[][] getCells() {
+	//setting the status label and board according to the mode
+	private void setStatus(int mode, JButton status2) {
+		int ModeButtonX = (int)(width/8.61);
+		int ModeButtonY = (int)(height/18.42);
+		int ModeButtonLength = (int)(width/6.46);
+		int ModeButtonHeight = (int)(height/17.5);
+		puzzle = new SudokuGenerator();
+		sudoku = puzzle.getSudokuGenerated(sudoku);
+
+		switch(mode) {
+		case 1:
+			status.setText("Easy");
+	        board = puzzle.sudokuPuzzle(mode);
+			break;
+		case 2:
+			status.setText("Medium");
+	        board = puzzle.sudokuPuzzle(mode);
+			break;
+		case 3:
+			status.setText("Hard");
+	        board = puzzle.sudokuPuzzle(mode);
+			break;
+		}
+//		for(int i = 0; i<9; i++) {
+//			for(int j = 0; j < 9; j++) {
+//				System.out.print(sudoku[i][j]);
+//			}
+//			System.out.println();
+//		}
+		status.setFont(fontez);
+    	status.setBackground(LIGHTBLACK);
+    	status.setForeground(WHITE);
+    	status.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
+    	status.setOpaque(true);
+    	status.setBorderPainted(false);
+	}
+
+	public static JTextField[][] getCells() {
     	return cells;
     }
-    
-    public static void main(String[] args) {
-    	new SudokuInGame();
-    }
-
+	public static int[][] getBoard(){
+		return board;
+	}
+	public static int[][] getSudokuBoard() {
+		return sudoku;
+	}
+	public static void disposeFrame() {
+		frame.dispose();
+	}
+	public static boolean getUseHint() {
+		return selecthint;
+	}
+	public static int getHintLeft() {
+		return hintleft;
+	}
+	public static int getHintClick() {
+		//TODO Auto-generated method stub
+		return hintclick;
+	}
+	public static void resetHint() {
+		//TODO Auto-generated method stub
+		hintleft--;
+		selecthint = false;
+		hintclick = 0;
+    	hintNum.setText(Integer.toString(hintleft));
+		resetButton(hint);
+	}
+	public static void setHover(JButton button) {
+		button.setBackground(YELLOW);
+	}
+	public static void resetButton(JButton button) {
+		button.setBackground(LIGHTBLACK);
+	}
+	public static void setSelect(JButton button) {
+		button.setBackground(ORANGE);
+	}
 }
