@@ -146,7 +146,7 @@ public class sGenerator {
 								Sudoku[rows][col+3]=Sudoku[rows][col+6];//C into B
 								Sudoku[rows][col+6]=temp;//A value stored to C rows
 								
-								temp= Sudoku[rows][col];//storing A rows into temp
+								temp= Puzzle[rows][col];//storing A rows into temp
 								Puzzle[rows][col]=Puzzle[rows][col+3];//B into A
 								Puzzle[rows][col+3]=Puzzle[rows][col+6];//C into B
 								Puzzle[rows][col+6]=temp;//A value stored to C rows
@@ -163,7 +163,7 @@ public class sGenerator {
 								Sudoku[rows][col+6]=Sudoku[rows][col+3];//B values into C
 								Sudoku[rows][col+3]=temp;//A value stored to B rows
 								
-								temp= Sudoku[rows][col];//storing A rows into temp
+								temp= Puzzle[rows][col];//storing A rows into temp
 								Puzzle[rows][col]=Puzzle[rows][col+6];//C values into A
 								Puzzle[rows][col+6]=Puzzle[rows][col+3];//B values into C
 								Puzzle[rows][col+3]=temp;//A value stored to B rows
@@ -368,17 +368,108 @@ public class sGenerator {
 				}
 				
 				//using transpose, rotate etc
-				Random r = new Random();
-				int f = r.nextInt(2);
-				if(f==1) {//transposing
-					int[][] sClone = Sudoku.clone();
-					for(int row =0; row<Sudoku.length; row++) {
-						for(int col =0; col<Sudoku[row].length; col++) {
-							Sudoku[row][col]=sClone[col][row];
+				Random counts = new Random();
+				int count2 = counts.nextInt(10);
+				for(int i = 0; i<count2; i++) {
+					Random method = new Random();
+					int chooseMethod = method.nextInt(5);
+					
+					int cloneS[][] = new int [9][9];
+					for(int row =0; row<Sudoku.length;row++) {
+						for(int col=0; col<Sudoku[row].length; col++) {
+							cloneS[row][col]= Sudoku[row][col];
 						}
 					}
+					
+					int cloneP[][] = new int [9][9];
+					for(int row =0; row<Puzzle.length;row++) {
+						for(int col=0; col<Puzzle[row].length; col++) {
+							cloneP[row][col]= Puzzle[row][col];
+						}
 					}
+					
+					switch(chooseMethod) {
+					case 0:{
+						break;
+					}
+					case 1:{//rotate
+						for(int row = 0; row < Sudoku.length; row++) {
+							for(int col = 0; col < Sudoku.length; col++) {
+								Sudoku[row][col] = cloneS[Sudoku.length-col-1][row];
+							}	
+						}
+						
+						for(int row = 0; row < Puzzle.length; row++) {
+							for(int col = 0; col < Puzzle.length; col++) {
+								Puzzle[row][col] = cloneP[Puzzle.length-col-1][row];
+							}	
+						}
+						break;
+					}
+					case 2:{//backtranspose
+						for (int row = 0; row < Sudoku.length; row++) {
+							for(int col = 0; col < Sudoku.length; col++) {
+								Sudoku[row][col] = cloneS[Sudoku.length-col-1][Sudoku.length-row-1];
+							}
+						}
+						
+						for (int row = 0; row < Puzzle.length; row++) {
+							for(int col = 0; col < Puzzle.length; col++) {
+								Puzzle[row][col] = cloneP[Puzzle.length-col-1][Puzzle.length-row-1];
+							}
+						}
+						break;
+						
+					}
+					case 3:{//reverseRows
+						for (int row = 0; row < Sudoku.length; row++) {
+							for(int col = 0; col < Sudoku.length; col++) {
+								Sudoku[row][col] = cloneS[row][Sudoku.length-col-1];
+							}
+						}
+						
+						for (int row = 0; row < Puzzle.length; row++) {
+							for(int col = 0; col < Puzzle.length; col++) {
+								Puzzle[row][col] = cloneP[row][Puzzle.length-col-1];
+							}
+						}
+						break;
+		
+					}
+					case 4:{//transpose
+						for (int row = 0; row < Sudoku.length; row++) {
+							for(int col = 0; col < Sudoku.length; col++) {
+								Sudoku[row][col] = cloneS[col][row];
+							}
+						}
+						
+						for (int row = 0; row < Puzzle.length; row++) {
+							for(int col = 0; col < Puzzle.length; col++) {
+								Puzzle[row][col] = cloneP[col][row];
+							}
+						}
+						break;	
+					}
+					case 5:{//reverseCols
+						for (int row = 0; row < Sudoku.length; row++) {
+							for(int col = 0; col < Sudoku.length; col++) {
+								Sudoku[row][col] = cloneS[Sudoku.length-row-1][col];
+							}
+						}
+						
+						for (int row = 0; row < Puzzle.length; row++) {
+							for(int col = 0; col < Puzzle.length; col++) {
+								Puzzle[row][col] = cloneP[Puzzle.length-row-1][col];
+							}
+						}
+						break;
+						
+					}
+					}
+				}
 		}
+
+
 	public int[][] getPuzzle(){
 		return Puzzle;
 	}
