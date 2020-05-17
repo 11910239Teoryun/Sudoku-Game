@@ -1,0 +1,67 @@
+package view;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;  
+
+//opens a file to load previous game
+public class SudokuOpen {
+	
+	JFileChooser fileChooser = new JFileChooser();
+	JFrame parentFrame = new JFrame();
+	public int level = 0;
+	
+	public SudokuOpen(int[][] solution, char[][] statusboard, int[][] savedboard, int hintleft) {
+		parentFrame = new JFrame();
+		fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+		int result = fileChooser.showOpenDialog(parentFrame);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			try {
+			    File selectedFile = fileChooser.getSelectedFile(); 
+				Scanner reader = new Scanner(selectedFile);
+				level = reader.nextInt();
+				String temp = reader.nextLine();
+				temp = reader.nextLine();
+				//retrieve the solution
+				int count = 0;
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j < 9; j++) {
+						solution[i][j] = Integer.parseInt(temp.substring(count,count+1));	
+						count++;
+					}
+				}
+				//retrieve the editable and non editable status
+				count = 0;
+				temp = reader.nextLine();
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j < 9; j++) {
+						statusboard[i][j] = temp.charAt(count);	
+						count++;
+					}
+				}
+				//retrieve the previous board
+				count=0;
+				temp = reader.nextLine();
+				for(int i = 0; i<9; i++) {
+					for(int j = 0; j<9; j++) {
+						savedboard[i][j] = Integer.parseInt(temp.substring(count,count+1));	
+						count++;
+					}
+				}
+				//retrieve the number of hints left
+				hintleft = Integer.parseInt(reader.nextLine());
+				reader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public int getGameLevel() {
+		return level;
+	}
+
+}
