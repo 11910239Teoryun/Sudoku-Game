@@ -1,3 +1,7 @@
+package controller;
+
+import controller.InputListener;
+import model.SudokuGenerator;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,40 +21,39 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-
-import view.InputListener;
-import model.SudokuGenerator;
+import view.SudokuOpen;
+import view.SudokuQuit;
 
 public class SudokuGame {
-
-    private JButton status;
-	private static JButton hint;
-	private JButton undo;
-	private JButton pause;
+	
+	//components of GUI
+    private JButton status, quit;
+    private static JButton hint;
     private static JLabel hintNum;
     private static JFrame frame;
-    private JPanel panel, Panel;
-    public static JTextField[][] cells = new JTextField[9][9];
-    public JPanel[][]  grid = new JPanel[3][3];
+    private JPanel panel, BigGrid;
+    
+    //the 2D arrays
+    public static JTextField[][] cells = new JTextField[9][9]; //cells is the big grid of the game
+    public JPanel[][]  subGrid = new JPanel[3][3]; //grid is the sub grid 
+    public static int[][] board = new int[9][9]; //the puzzle that needs to be solved
+    public static int[][] sudoku = new int[9][9]; //the solution
+    final static char[][] statusboard = new char [9][9]; //storing the current status (T = editable, F = non-editable)
+  
+    public static SudokuGenerator puzzle;
+    
+    //dimensions of the screen
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public int height = screenSize.height;
     public int width = screenSize.width;
-    public static int hintleft = 3;
-
-    public static SudokuGenerator puzzle;
-    public static int[][] board;
-    public static int[][] sudoku = new int[9][9];
     
+    public static int hintleft = 3; //the number of hints remaining
+    public static int level; //level indicates the difficulty
+
     //Select
-    public static boolean selecthint = false, selectundo = false, selectpause = false;
+    public static boolean selecthint = true, selectundo = false, selectpause = false;
     
-    //Clicks
-    private static int hintclick = 0,undoclick = 0,pauseclick = 0;
-    
-
-
-    
-    //COLORS
+    //Colors
     public static final Color SUPERBLACK = new Color(29, 29, 29);
     public static final Color MEDIUMBLACK = new Color(34, 35, 39);
     public static final Color LIGHTBLACK = new Color(52, 54, 60);
@@ -58,272 +61,344 @@ public class SudokuGame {
     public static final Color YELLOW = new Color(238,213,87);
     public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
+    public static final Color DARKRED = new Color(92,44,35);
+    public static final Color LIGHTRED = new Color(232,112,100);
     
-    //GRID
+    //Fonts
     public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/33));
     public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
     public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
-    public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/30));
+    public Font fonteasy = new Font("Helvetica Neue", Font.BOLD, (int)(height/30));
     public Font fonthint = new Font("Helvetica Neue", Font.BOLD, (int)(width/76));
 
-    
-    public SudokuGame(int mode) {
+    //SudokuGame gets a mode and a level as a parameter;
+    public SudokuGame(int mode, int newlevel) {
     	
     	frame = new JFrame();
-    	
-	    frame.setSize((int) (width/2.58), (int) (height/1.07));
-		frame.setLocationRelativeTo(null);
-		frame.getContentPane().setBackground(SUPERBLACK);
+    	frame.setSize((int) (width/2.58), (int) (height/1.07));
+    	frame.setLocationRelativeTo(null);
+    	frame.getContentPane().setBackground(SUPERBLACK);
 
-		panel = new JPanel();
-		//X,Y,Length,Height
-		panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));
-		panel.setBackground(SUPERBLACK);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		
-		
-		
-		//Grid
-
-		Panel = new JPanel(new GridLayout(3,3));
-        Panel.setBorder(BorderFactory.createLineBorder(YELLOW,2));
-        Panel.setBackground(YELLOW);
-        Panel.setBounds((int)(width/40),(int)(height/6.48),(int)(height/1.84),(int)(height/1.84)); //(X,Y,Width,Height)
+    	panel = new JPanel();
+    	panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5)))); //X,Y,Length,Height
+    	panel.setBackground(SUPERBLACK);
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+			
+    	//Drawing the grids of the game
+    	BigGrid = new JPanel(new GridLayout(3,3));
+        BigGrid.setBorder(BorderFactory.createLineBorder(YELLOW,2));
+        BigGrid.setBackground(YELLOW);
+        BigGrid.setBounds((int)(width/40),(int)(height/6.00),(int)(height/1.84),(int)(height/1.84)); //(X,Y,Width,Height)
        
+        //drawing tiny subGrids and adding it to the BigGrid
         for(int i = 0 ; i < 3; i++) {
     		for(int j = 0; j < 3; j++) {
-    			grid[i][j] = new JPanel(new GridLayout(3,3,1,1));
-    			grid[i][j].setBorder(new MatteBorder(1,1,1,1,YELLOW));
-    			grid[i][j].setBackground(SUPERBLACK);
-    			Panel.add(grid[i][j]);
+    			subGrid[i][j] = new JPanel(new GridLayout(3,3,1,1));
+    			subGrid[i][j].setBorder(new MatteBorder(1,1,1,1,YELLOW)); //making the border
+    			subGrid[i][j].setBackground(SUPERBLACK);
+    			BigGrid.add(subGrid[i][j]);
     		}
     	}
-        status = new JButton();
-    	setStatus(mode, status);
-
         
-        InputListener listener = new InputListener();
-     	for(int i = 0; i < 9; i++) {
-    		for(int j = 0; j < 9; j++) {
-    			cells[i][j] = new JTextField();
-    			if(board[i][j] != 0) {
-    				cells[i][j].setText(board[i][j]+""); 
-    				cells[i][j].setEditable(false);
-        			cells[i][j].setBackground(MEDIUMBLACK);
-    				cells[i][j].setForeground(WHITE);
-    			}
-    			else {
-    				cells[i][j].setBackground(MEDIUMBLACK);
-    				cells[i][j].setForeground(YELLOW);
-    				cells[i][j].addFocusListener(listener);
-    				cells[i][j].addKeyListener(listener);
-    			}
-    			int row = i/3;
-				int col = j/3;
-				cells[i][j].setHorizontalAlignment(JTextField.CENTER);
-				cells[i][j].setBorder(BorderFactory.createLineBorder(YELLOWBorder,1));
-				cells[i][j].setFont(FONTGrid);
-				grid[row][col].add(cells[i][j]);	
-
-    		}
-    	};
-    	//mode	
-		//hint, undo, pause
-		int imagedim = (int) (height/23.33);
-		int boundsY = (int)(height/1.32);
+        status = new JButton();
+    	setStatus(mode, newlevel, status, statusboard); //use setStatus method on line 184
+        setCells(mode, statusboard, board); //use setCells method on line 245
+        	
+		//making the hint, and quit buttons
+		int imagedimHint = (int) (height/23.33);
+		int imagedimQuit = (int) (height/28);
+		int boundsY = (int)(height/1.30);
 		int OptionDim = (int)(width/22.4);
+		
+		//adding the bulb png to the button
 		ImageIcon Bulb = new ImageIcon("Hint.png");
 		Image img = Bulb.getImage() ;  
-		Image newimg = img.getScaledInstance( imagedim, imagedim,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Image newimg = img.getScaledInstance( imagedimHint, imagedimHint,  java.awt.Image.SCALE_SMOOTH ) ;  
 		Bulb = new ImageIcon( newimg );
 		hint = new JButton(Bulb);
+		//setting the colors and the position of the hint button
 		hint.setBackground(LIGHTBLACK);
-		hint.setBounds((int)(width/16.47),boundsY,OptionDim,OptionDim);
+		hint.setBounds((int)(width/9.76),boundsY,OptionDim,OptionDim);
 		hint.setOpaque(true);
 		hint.setBorderPainted(false);
-		
+		//creating a yellow box that displays the number of hints left
 		hintNum = new JLabel(Integer.toString(hintleft),JLabel.CENTER);
 		hintNum.setBackground(YELLOW);
 		hintNum.setForeground(SUPERBLACK);
 		hintNum.setFont(fonthint);
 		hintNum.setOpaque(true);
 		hintNum.setBounds((int)(width/2.89),(int)(height/105),(int)(width/30),(int)(width/30));
-		
-		ImageIcon Undo = new ImageIcon("Undo.png");
-		Image img1 = Undo.getImage() ;  
-		Image newimg1 = img1.getScaledInstance( (int)(height/26.25), (int)(height/26.25),  java.awt.Image.SCALE_SMOOTH ) ;  
-		Undo = new ImageIcon( newimg1 );
-		undo = new JButton(Undo);
-		undo.setBackground(LIGHTBLACK);
-		undo.setBounds((int)(width/5.83),boundsY,OptionDim,OptionDim);
-		undo.setOpaque(true);
-		undo.setBorderPainted(false);
-		
-		ImageIcon Pause = new ImageIcon("Pause.png");
-		Image img2 = Pause.getImage() ;  
-		Image newimg2 = img2.getScaledInstance( imagedim, imagedim,  java.awt.Image.SCALE_SMOOTH ) ;  
-		Pause = new ImageIcon( newimg2 );
-		pause = new JButton(Pause);
-		pause.setBackground(LIGHTBLACK);
-		pause.setBounds((int)(width/3.51),boundsY,OptionDim,OptionDim);
-		pause.setOpaque(true);
-		pause.setBorderPainted(false);
+
+		//adding quit png to quit button
+		ImageIcon Quit = new ImageIcon("Quit.png");
+		Image img2 = Quit.getImage() ;  
+		Image newimg2 = img2.getScaledInstance( imagedimQuit, imagedimQuit,  java.awt.Image.SCALE_SMOOTH ) ;  
+		Quit = new ImageIcon( newimg2 );
+		quit = new JButton(Quit);
+		//setting quit color and position
+		quit.setBackground(LIGHTBLACK);
+		quit.setBounds((int)(width/4.18),boundsY,OptionDim,OptionDim);
+		quit.setOpaque(true);
+		quit.setBorderPainted(false);
 		
 		//adding buttons to frame
 		frame.add(hintNum);
 		frame.add(status);
 		frame.add(hint);
-		frame.add(undo);
-		frame.add(pause);
-		frame.add(Panel);
+		frame.add(quit);
+		frame.add(BigGrid);
 		frame.add(panel);	
-		frame.setVisible(true);
-		frame.setResizable(false);
+		frame.setVisible(true); 
+		frame.setResizable(false); //user can't resize the frame
 		
 		//mouse hovering over effect
 		hint.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		    	if(!selecthint) setHover(hint);
+		    	setHover(hint);
 		    }
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		    	if(!selecthint) resetButton(hint);
+		    	resetButton(hint);
 		    }
 		});
+		
+		//when the user click on hint, the hint number decreases 
 		hint.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
-	        	hintclick++;
-	        	if(hintleft<=0) {
-	        		new Hints();
-	        	}
-	        	else {
-	        		if(hintclick %2 != 0) {
-			        	selecthint = true;
-			        	setSelect(hint);
-		        	}
-		        	else {
-		        		selecthint = false;
-		        		resetButton(hint);
-		        	}
-	        	}
+	        	selecthint = true;
+	        	InputListener.useHint();
 	        }
 	    });
-		
-		undo.addMouseListener(new java.awt.event.MouseAdapter() {
+			
+		//hovering effect
+		quit.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		    	if(!selectundo) setHover(undo);
+		        if(!selectpause) setHover(quit);
 		    }
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		    	if(!selectundo) resetButton(undo);
+		        if(!selectpause) resetButton(quit);
 		    }
 		});
-		undo.addActionListener(new ActionListener() {
+		//when click on quit, the SudokuQuit frame comes up
+		quit.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
-	        	
-	        }
-	    });
-		
-		pause.addMouseListener(new java.awt.event.MouseAdapter() {
-		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        if(!selectpause) setHover(pause);
-		    }
-		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        if(!selectpause) resetButton(pause);
-		    }
-		});
-		pause.addActionListener(new ActionListener() {
-	        @Override
-	        public void actionPerformed(ActionEvent e) {
-	        	pauseclick++;
-	        	if(pauseclick %2 != 0) {
-		        	selectpause = true;
-
-		        	setSelect(pause);
-	        	}
-	        	else {
-		        	selectpause = false;
-	        		resetButton(pause);
-	        	}
+	        	new SudokuQuit();
 	        }
 	    });
 		
     }
     
-	//setting the status label and board according to the mode
-	private void setStatus(int mode, JButton status2) {
-		int ModeButtonX = (int)(width/8.61);
-		int ModeButtonY = (int)(height/18.42);
-		int ModeButtonLength = (int)(width/6.46);
-		int ModeButtonHeight = (int)(height/17.5);
-		puzzle = new SudokuGenerator();
-		sudoku = puzzle.getSudokuGenerated(sudoku);
+    //setting the status label and board according to the mode
+  	private void setStatus(int mode, int newlevel, JButton status2, char[][] statusboard) {
+  		int ModeButtonX = (int)(width/8.61);
+  		int ModeButtonY = (int)(height/18.42);
+  		int ModeButtonLength = (int)(width/6.46);
+  		int ModeButtonHeight = (int)(height/17.5);
 
-		switch(mode) {
-		case 1:
-			status.setText("Easy");
-	        board = puzzle.sudokuPuzzle(mode);
-			break;
-		case 2:
-			status.setText("Medium");
-	        board = puzzle.sudokuPuzzle(mode);
-			break;
-		case 3:
-			status.setText("Hard");
-	        board = puzzle.sudokuPuzzle(mode);
-			break;
+  		switch(mode) {
+  		case 0:
+  			switch(newlevel) {
+  			case 1:
+  				puzzle = new SudokuGenerator(newlevel);
+  				status2.setText("EASY");
+  		        board = puzzle.getPuzzle();
+  		        sudoku = puzzle.getSolution();
+  				break;
+  			case 2:
+  				puzzle = new SudokuGenerator(newlevel);
+  				status2.setText("MEDIUM");
+  		        board = puzzle.getPuzzle();
+  		        sudoku = puzzle.getSolution();
+  				break;
+  			case 3:
+  				puzzle = new SudokuGenerator(newlevel);
+  				status2.setText("HARD");
+  		        board = puzzle.getPuzzle();
+  		        sudoku = puzzle.getSolution();
+  				break;
+  			}
+  			break;
+  		case 1:
+  			SudokuOpen open = new SudokuOpen(sudoku, statusboard, board, hintleft);
+  			newlevel = open.getGameLevel();
+  			
+  			System.out.print("SudokuGame: " + newlevel);
+  			switch(newlevel) {
+  			case 1:
+  				status2.setText("EASY");
+  				newlevel = 1;
+  				break;
+  			case 2:
+  				status2.setText("MEDIUM");
+  				newlevel = 2;
+  				break;
+  			case 3:
+  				status2.setText("HARD");
+  				newlevel = 3;
+  				break;
+  			}
+  			break;
+  		}
+  		
+  		InputListener.resetInputListener(board, sudoku);
+  		status.setFont(fonteasy);
+      	status.setBackground(LIGHTBLACK);
+      	status.setForeground(WHITE);
+      	status.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
+      	status.setOpaque(true);
+      	status.setBorderPainted(false);
+      	level = newlevel;
+  	}
+  	
+  	//setting the cells according to the mode 0 or 1 to determine whether it is an old game or a new one
+	private void setCells(int mode, char[][] statusboard, int[][] board) {
+		
+		InputListener listener = new InputListener();
+		if(mode == 1) { //mode 1 means the game has to set the cells as editable or non editable according to the saved game
+			for(int i = 0; i < 9; i++) {
+	    		for(int j = 0; j < 9; j++) {
+	    			
+	    			cells[i][j] = new JTextField();
+	    			if(statusboard[i][j]=='F') { //F means its not editable
+	    				cells[i][j].setText(board[i][j]+""); 
+	    				cells[i][j].setEditable(false);
+	        			cells[i][j].setBackground(MEDIUMBLACK);
+	    				cells[i][j].setForeground(WHITE);
+	    			}
+	    			
+	    			else {
+	    				if(board[i][j] != 0) { //if the board is already filled (!=0) set the cell as the value of the board
+		    				cells[i][j].setText(board[i][j]+""); 
+	    				}
+	    				cells[i][j].setBackground(MEDIUMBLACK);
+	    				cells[i][j].setForeground(YELLOW);
+	    				cells[i][j].addFocusListener(listener);
+	    				cells[i][j].addKeyListener(listener);
+	    			}
+	    			
+	    			int row = i/3;
+					int col = j/3;
+					cells[i][j].setHorizontalAlignment(JTextField.CENTER); //aligning the text so it's in the middle
+					cells[i][j].setBorder(BorderFactory.createLineBorder(YELLOWBorder,1)); //set border of each little cell
+					cells[i][j].setFont(FONTGrid); 
+					subGrid[row][col].add(cells[i][j]); //adding each tiny cell into the subGrid
+	    		}
+			}
 		}
-//		for(int i = 0; i<9; i++) {
-//			for(int j = 0; j < 9; j++) {
-//				System.out.print(sudoku[i][j]);
-//			}
-//			System.out.println();
-//		}
-		status.setFont(fontez);
-    	status.setBackground(LIGHTBLACK);
-    	status.setForeground(WHITE);
-    	status.setBounds(ModeButtonX,ModeButtonY,ModeButtonLength,ModeButtonHeight);
-    	status.setOpaque(true);
-    	status.setBorderPainted(false);
-	}
+		
+		else { //if mode is not 0, set the cell as a new puzzle according to the level
+	     	for(int i = 0; i < 9; i++) {
+	    		for(int j = 0; j < 9; j++) {
+	    			cells[i][j] = new JTextField();
+	    			if(board[i][j] != 0) { 
+	    				statusboard[i][j] = 'F'; //setting the status board for loading in case the user wants to save
+	    				cells[i][j].setText(board[i][j]+""); 
+	    				cells[i][j].setEditable(false);
+	        			cells[i][j].setBackground(MEDIUMBLACK);
+	    				cells[i][j].setForeground(WHITE);
+	    			}
+	    			else {
+	    				statusboard[i][j] = 'T'; //setting the status board for loading in case the user wants to save
+	    				cells[i][j].setBackground(MEDIUMBLACK);
+	    				cells[i][j].setForeground(YELLOW);
+	    				cells[i][j].addFocusListener(listener);
+	    				cells[i][j].addKeyListener(listener);
+	    			}
+	    			
+	    			int row = i/3;
+					int col = j/3;
+					cells[i][j].setHorizontalAlignment(JTextField.CENTER);
+					cells[i][j].setBorder(BorderFactory.createLineBorder(YELLOWBorder,1));
+					cells[i][j].setFont(FONTGrid);
+					subGrid[row][col].add(cells[i][j]);	
+	    		}
 
+	    	}
+		}
+	}
+	
+	//methods for getting the things in this class to other classes
 	public static JTextField[][] getCells() {
     	return cells;
     }
+	
 	public static int[][] getBoard(){
 		return board;
 	}
+	
 	public static int[][] getSudokuBoard() {
 		return sudoku;
 	}
-	public static void disposeFrame() {
-		frame.dispose();
-	}
+	
 	public static boolean getUseHint() {
 		return selecthint;
 	}
+
+	public static char[][] getStatusBoard(){
+		return statusboard;
+	}
+	
+	public static int getLevel() {
+		return level;
+	}
+	
 	public static int getHintLeft() {
 		return hintleft;
 	}
-	public static int getHintClick() {
-		//TODO Auto-generated method stub
-		return hintclick;
-	}
-	public static void resetHint() {
-		//TODO Auto-generated method stub
+	
+	//changes the hint number in the yellow box of hint
+	public static void updateHint() {
 		hintleft--;
-		selecthint = false;
-		hintclick = 0;
+		if(hintleft >= 0) hintNum.setText(Integer.toString(hintleft));
+		else hintNum.setText(0+""); //making the hint stop decreasing when its 0
+	}
+	
+	//making the hint button turn back to its original color
+	public static void resetHint() {
+		hintleft=3;
     	hintNum.setText(Integer.toString(hintleft));
 		resetButton(hint);
 	}
+	
 	public static void setHover(JButton button) {
 		button.setBackground(YELLOW);
 	}
+	
+	//making buttons turn back to the black color
 	public static void resetButton(JButton button) {
 		button.setBackground(LIGHTBLACK);
 	}
+	
+	//change button color when selected
 	public static void setSelect(JButton button) {
 		button.setBackground(ORANGE);
+	}
+	
+	//change the color of the cells when its wrong
+	public static void setWrongCell(int row, int col, boolean isEditable) {
+		if(isEditable) {
+			cells[row][col].setForeground(YELLOW);
+		}
+		else{
+			cells[row][col].setForeground(LIGHTRED);
+		}
+		cells[row][col].setBackground(DARKRED);
+
+	}
+	
+	//change cell to original color
+	public static void resetCell(int row, int col, boolean isEditable) {
+		if(isEditable) {
+			cells[row][col].setForeground(YELLOW);
+		}
+		else {
+			cells[row][col].setForeground(WHITE);
+		}
+		cells[row][col].setBackground(MEDIUMBLACK);
+	}
+	
+	public static void disposeFrame() {
+		frame.dispose();
 	}
 }
