@@ -1,0 +1,153 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+import controller.SudokuGame;
+import controller.SudokuStart;
+
+public class SudokuQuit {
+	
+	//main components
+	private static JFrame frame;
+	private JButton resume, quit, ngame;
+	private JPanel panel;
+	
+	//colors
+	public static final Color SUPERBLACK = new Color(29, 29, 29);
+	public static final Color LIGHTBLACK = new Color(52, 54, 60);
+	public static final Color WHITE = new Color(254,253,253);
+	public static final Color YELLOW = new Color(238,213,87);
+	public static final Color ORANGE = new Color(239,187,64);
+	
+	//dimensions of the user's frame
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int height = screenSize.height;
+    public int width = screenSize.width;
+    
+    //fonts
+    public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/40.38));
+	
+	public SudokuQuit() {
+		
+		frame = new JFrame();		
+	    frame.setSize((int)(width/4.54),(int)(height/2.87));
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(SUPERBLACK);
+		
+		panel = new JPanel();
+		panel.setBorder(new EmptyBorder(new Insets(30,30,300,300))); //X,Y,Length,Height
+		panel.setBackground(SUPERBLACK);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		int x = (int)(height/350);
+		panel.setBorder(new MatteBorder(x,x,x,x,YELLOW));
+		
+		int buttonsX = (int)(width/25.85);
+		int X = (int)(width/7);
+		int Y = (int)(height/17.5);
+		//making the buttons for resume, new game and quit
+		resume = new JButton("RESUME");
+		resume.setFont(font);
+		resume.setBackground(YELLOW);
+		resume.setForeground(SUPERBLACK);
+		resume.setBounds(buttonsX,(int)(height/21),X,Y);
+		resume.setOpaque(true);
+		resume.setBorderPainted(false);
+		//ngame is new game
+		ngame = new JButton("NEW GAME");
+		ngame.setFont(font);
+		ngame.setBackground(YELLOW);
+		ngame.setForeground(SUPERBLACK);
+		ngame.setBounds(buttonsX,(int)(height/7.5),X,Y);
+		ngame.setOpaque(true);
+		ngame.setBorderPainted(false);
+		
+		quit = new JButton("QUIT");
+		quit.setFont(font);
+		quit.setBackground(YELLOW);
+		quit.setForeground(SUPERBLACK);
+		quit.setBounds(buttonsX,(int)(height/4.56),X,Y);
+		quit.setOpaque(true);
+		quit.setBorderPainted(false);
+		
+		frame.add(resume);
+		frame.add(ngame);
+		frame.add(quit);
+		frame.add(panel);
+		frame.setVisible(true);
+		
+		//hover effect
+		resume.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        resume.setBackground(ORANGE);
+		        resume.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        resume.setBackground(YELLOW);
+		        resume.setForeground(SUPERBLACK);
+		    }
+		});
+		
+		//when resume is clicked, the pop up frame SudokuQuit is disposed
+		resume.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	frame.dispose();
+	        }
+	    });
+		//hover effect
+		ngame.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        ngame.setBackground(ORANGE);
+		        ngame.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        ngame.setBackground(YELLOW);
+		        ngame.setForeground(SUPERBLACK);
+		    }
+		});
+		//when new game is clicked, everything is disposed and SudokuStart is made
+		ngame.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	frame.dispose();
+	        	SudokuGame.disposeFrame();
+	        	new SudokuStart();
+	        }
+	    });
+		//hover effect
+		quit.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+		        quit.setBackground(ORANGE);
+		        quit.setForeground(SUPERBLACK);
+		    }
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+		        quit.setBackground(YELLOW);
+		        quit.setForeground(SUPERBLACK);
+		    }
+		});
+		//when the button quit is clicked, another pop up comes out: SudokuSaveOptoin
+		quit.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	new SudokuSaveOption();
+	        }
+	    });	
+	}
+	
+	//method for disposing the frame of this class
+	public static void disposeFrame() {
+		frame.dispose();
+	}
+
+}
