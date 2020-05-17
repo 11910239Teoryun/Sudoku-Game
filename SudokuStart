@@ -1,133 +1,233 @@
+package controller;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+//TO RUN:
+//currently you have to first pick easy or medium
+//then click the pause button to save
+//then the page reopens
+//click load button and start
+//it will load the game
+
 public class SudokuStart extends JFrame{
 	
-    private JLabel label;
-    private JButton start, easy, medium, hard;
+	private static final long serialVersionUID = 1L;
+	//components 
+	private JLabel label;
+    private JButton start, easy, medium, hard, load;
     private JFrame frame;
     private JPanel panel;
     
-    //COLORS
+    private int count = 0;
+	private static int mode = 0;
+	private static int level = 0;
+    
+    //colors
     public static final Color SUPERBLACK = new Color(29, 29, 29);
     public static final Color MEDIUMBLACK = new Color(34, 35, 39);
     public static final Color LIGHTBLACK = new Color(52, 54, 60);
     public static final Color WHITE = new Color(254,253,253);
     public static final Color YELLOW = new Color(238,213,87);
-    public static final Color YELLOWBorder = new Color(131,123,70);
     public static final Color ORANGE = new Color(239,187,64);
+    
+    //dimension of screen
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public int height = screenSize.height;
     public int width = screenSize.width;
-    //GRID
-    public Font FONTGrid = new Font("Titllium Web", Font.BOLD, (int)(height/30));
-    public Font FONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
-    public Font font = new Font("Helvetica Neue", Font.BOLD, (int)(height/17.5));
-    public Font fontez = new Font("Helvetica Neue", Font.BOLD, (int)(height/42));
+    
+    //fonts
+    public Font LabelFONT = new Font("Helvetica Neue", Font.BOLD, (int)(height/13.12));
+    public Font FontOfMode = new Font("Helvetica Neue", Font.BOLD, (int)(height/42));
     
     public SudokuStart() {
     	
-    	frame = new JFrame();
-		
+    	frame = new JFrame();		
 	    frame.setSize((int) (width/2.58), (int) (height/1.07));
 		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setBackground(SUPERBLACK);
 
 		panel = new JPanel();
-		//X,Y,Length,Height
-		panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));
+		panel.setBorder(new EmptyBorder(new Insets((int) (width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5)))); //X,Y,Length,Height
 		panel.setBackground(SUPERBLACK);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
-		label = new JLabel("SODUKU");
+		label = new JLabel("SUDOKU");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setVerticalAlignment(JLabel.CENTER);
 		label.setForeground(WHITE);
-		label.setFont(FONT);
+		label.setFont(LabelFONT);
 		label.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		
+	
 		start = new JButton("START");
-		start.setFont(fontez);
+		start.setFont(FontOfMode);
 		start.setBackground(YELLOW);
 		start.setForeground(SUPERBLACK);
 		start.setBounds((int)(width/7.3),(int)(height/1.42),(int)(width/8.4),(int)(height/15));
 		start.setOpaque(true);
 		start.setBorderPainted(false);
 		
+		//making the mode buttons
 		int ModeBX = (int)(width/8.4);
 		int ModeBLength = (int)(width/6.46);
 		int ModeBHeight = (int)(height/17.5);
 		easy = new JButton("EASY");
-		easy.setFont(fontez);
+		easy.setFont(FontOfMode);
 		easy.setBackground(LIGHTBLACK);
 		easy.setForeground(WHITE);
-		easy.setBounds(ModeBX,(int)(height/2.87),ModeBLength,ModeBHeight);
+		easy.setBounds(ModeBX,(int)(height/3.43),ModeBLength,ModeBHeight);
 		easy.setOpaque(true);
 		easy.setBorderPainted(false);
 		
 		medium = new JButton("MEDIUM");
-		medium.setFont(fontez);
+		medium.setFont(FontOfMode);
 		medium.setBackground(LIGHTBLACK);
 		medium.setForeground(WHITE);
-		medium.setBounds(ModeBX,(int)(height/2.25),ModeBLength,ModeBHeight);
+		medium.setBounds(ModeBX,(int)(height/2.58),ModeBLength,ModeBHeight);
 		medium.setOpaque(true);
 		medium.setBorderPainted(false);
 		
 		hard = new JButton("HARD");
-		hard.setFont(fontez);
+		hard.setFont(FontOfMode);
 		hard.setBackground(LIGHTBLACK);
 		hard.setForeground(WHITE);
-		hard.setBounds(ModeBX,(int)(height/1.85),ModeBLength,ModeBHeight);
+		hard.setBounds(ModeBX,(int)(height/2.07),ModeBLength,ModeBHeight);
 		hard.setOpaque(true);
 		hard.setBorderPainted(false);
 		
-
+		load = new JButton("LOAD");
+		load.setFont(FontOfMode);
+		load.setBackground(LIGHTBLACK);
+		load.setForeground(WHITE);
+		load.setBounds(ModeBX,(int)(height/1.73),ModeBLength,ModeBHeight);
+		load.setOpaque(true);
+		load.setBorderPainted(false);
+		
 		panel.add(label);
 		frame.add(start);
 		frame.add(easy);
 		frame.add(medium);
 		frame.add(hard);
+		frame.add(load);
 		frame.add(panel);	
 		frame.setVisible(true);
-	
 		
-		easy.addMouseListener(new java.awt.event.MouseAdapter() {
-		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        easy.setBackground(YELLOW);
-		        easy.setForeground(SUPERBLACK);
-		    }
-		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        easy.setBackground(LIGHTBLACK);
-		        easy.setForeground(WHITE);
-		    }
-		});
+		//clicking on effect	
+		//when number of click is odd, the button is selected
+		easy.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent evt) {
+                if (easy.getModel().isPressed()) {
+                	count++;
+                	if(count%2 != 0) { 
+                		easy.setBackground(YELLOW);
+                        easy.setForeground(SUPERBLACK);
+                        hard.setBackground(LIGHTBLACK);
+                        hard.setForeground(WHITE);
+                        medium.setBackground(LIGHTBLACK);
+                        medium.setForeground(WHITE); 
+                        load.setBackground(LIGHTBLACK);
+                        load.setForeground(WHITE);
+                        level = 1; //determines the level of difficulty
+                        mode = 0; //determines to load old or new game
+                	}               	
+                }
+                count = 0; //reset the number of clicks
+            }
+        });
 		
-		medium.addMouseListener(new java.awt.event.MouseAdapter() {
-		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        medium.setBackground(YELLOW);
-		        medium.setForeground(SUPERBLACK);
-		    }
-		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        medium.setBackground(LIGHTBLACK);
-		        medium.setForeground(WHITE);
-		    }
-		});
+		medium.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent evt) {
+                if (medium.getModel().isPressed()) {
+                	count++;
+                	if(count%2 != 0) {
+                		medium.setBackground(YELLOW);
+                        medium.setForeground(SUPERBLACK);
+                        easy.setBackground(LIGHTBLACK);
+                        easy.setForeground(WHITE);
+                        hard.setBackground(LIGHTBLACK);
+                        hard.setForeground(WHITE);
+                        load.setBackground(LIGHTBLACK);
+                        load.setForeground(WHITE);
+                        level = 2; 
+                        mode = 0;
+                        
+                	}
+                } 
+                count = 0;
+            }
+            
+        });
 		
-		hard.addMouseListener(new java.awt.event.MouseAdapter() {
-		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-		        hard.setBackground(YELLOW);
-		        hard.setForeground(SUPERBLACK);
-		    }
-		    public void mouseExited(java.awt.event.MouseEvent evt) {
-		        hard.setBackground(LIGHTBLACK);
-		        hard.setForeground(WHITE);
-		    }
-		});
+		hard.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent evt) {
+                if (hard.getModel().isPressed()) {
+                	count++;
+                	if(count%2 != 0) {
+                		hard.setBackground(YELLOW);
+                        hard.setForeground(SUPERBLACK);
+                        medium.setBackground(LIGHTBLACK);
+                        medium.setForeground(WHITE);
+                        easy.setBackground(LIGHTBLACK);
+                        easy.setForeground(WHITE); 
+                        load.setBackground(LIGHTBLACK);
+                        load.setForeground(WHITE);
+                        level = 3;
+                        mode = 0;
+                	}
+                }                
+                count = 0;
+            }
+        });
 		
+		//used to load previous game
+		load.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent evt) {
+                if (load.getModel().isPressed()) {
+                	count++;
+                	if(count%2 != 0) {
+                		hard.setBackground(LIGHTBLACK);
+                        hard.setForeground(WHITE);
+                        medium.setBackground(LIGHTBLACK);
+                        medium.setForeground(WHITE);
+                        easy.setBackground(LIGHTBLACK);
+                        easy.setForeground(WHITE);
+                        load.setBackground(YELLOW);
+                        load.setForeground(SUPERBLACK);
+                        mode = 1;
+                	}
+                }                
+                count = 0;
+            }
+        });
+		
+		
+		start.addActionListener(new ActionListener() {
+        	@Override
+            public void actionPerformed(ActionEvent e) {
+                //When press startButton, it will create a pop-out function
+        		switch(mode) {
+        		case 0 : 
+        			frame.dispose();
+        			new SudokuGame(mode, level); //create SudokuGame according to mode and level given
+        			break;
+        		case 1:
+        			frame.dispose();
+        			new SudokuGame(mode, level);
+        			break;
+          		}        		
+        	}
+        });
+		
+		//hovering effect for start button
 		start.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
 		        start.setBackground(ORANGE);
@@ -138,17 +238,19 @@ public class SudokuStart extends JFrame{
 		        start.setForeground(SUPERBLACK);
 		    }
 		});
-		
-        start.addActionListener(new ActionListener() {
-        	@Override
-            public void actionPerformed(ActionEvent e) {
-                //When press startButton, it will create a pop-out function
-            	frame.dispose();
-            	new SudokuInGame();
-        	}
-        });
-
     }
     
-}
+    //used to set a level
+    public static void setLevel(int currentlevel) {
+    	level = currentlevel;
+    }
+    
+    public static int getMode() {
+    	return mode;
+    }
+    
+    public static int getLevel() {
+    	return level;
+    }
 
+}
