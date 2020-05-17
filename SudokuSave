@@ -1,0 +1,69 @@
+package view;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import helper.FileTypeFilter;
+
+
+//this class is for saving the game
+
+public class SudokuSave {
+	
+	//components
+	private JFrame parentFrame;
+	private JFileChooser fileChooser;
+	private File fileToSave;
+	
+	public SudokuSave(int mode, int level, int[][] sudoku, char[][] statusboard, int[][] board, int hintleft) {
+		
+		// parent component of the dialog
+		parentFrame = new JFrame();
+		fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Select a file to save");   
+		fileChooser.setFileFilter(new FileTypeFilter(".txt", "Text File"));
+		
+		int userSelection = fileChooser.showSaveDialog(parentFrame);
+		 
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+		    fileToSave = fileChooser.getSelectedFile();
+		    try {
+				FileWriter file = new FileWriter(fileToSave.getAbsolutePath());
+				PrintWriter output = new PrintWriter(file);
+				output.println(level); //prints level to the 'file'
+				//sudoku solution
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j<9; j++) {
+						output.print(sudoku[i][j]);
+					}
+				}
+				//status of the board
+				output.println();
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j<9; j++) {
+						output.print(statusboard[i][j]);
+					}
+				}
+				output.println();
+
+				//saved board
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j<9; j++) {
+						output.print(board[i][j]);
+					}
+				}
+				//hints
+				output.println();
+				output.print(hintleft);
+				output.close();
+				
+		    } catch (Exception e) {
+		    	e.printStackTrace();
+		    }
+		}
+
+		
+	}	
+}
