@@ -1,3 +1,5 @@
+package view;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,32 +14,36 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import controller.SudokuStart;
+
+//displays the winning page after the user completes all the cells correctly
 
 public class SudokuWin {
 
+	//components of the frame
 	private JPanel panel;
 	private JButton yes, no, congrats, win, onemore;
 	private JFrame frame;
 	private JLabel line;
 	
 	
-	//COLORS
+	//colors
 	public static final Color SUPERBLACK = new Color(29, 29, 29);
 	public static final Color MEDIUMBLACK = new Color(34, 35, 39);
 	public static final Color LIGHTBLACK = new Color(52, 54, 60);
-	public static final Color WHITE = new Color(254,253,253);
 	public static final Color YELLOW = new Color(238,213,87);
-	public static final Color YELLOWBorder = new Color(131,123,70);
 	public static final Color ORANGE = new Color(239,187,64);
+	public static final Color WHITE = new Color(254,253,253);
+	
+	//dimension of the user's screen
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     public int height = screenSize.height;
     public int width = screenSize.width;
 	
-	//FONT
+	//color
 	public static final Font FONT = new Font("Helvetica Neue", Font.BOLD, 80);
 	public static final Font CONGRATS = new Font("Helvetica Neue", Font.PLAIN, 45);
 	public Font font = new Font("Helvetica Neue", Font.BOLD, 60);
-	public Font One = new Font("Helvetica Neue", Font.BOLD, 30);
 	public Font option = new Font("Helvetica Neue", Font.BOLD, 30);
 	
 	public SudokuWin() {
@@ -48,16 +54,17 @@ public class SudokuWin {
 		frame.getContentPane().setBackground(SUPERBLACK);
 		
 		panel = new JPanel();
-		//(X,Y,Width,Height)
-		panel.setBorder(new EmptyBorder(new Insets((int)(width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));		
+		panel.setBorder(new EmptyBorder(new Insets((int)(width/11.2), (int) (height/10.5), (int)(width/8.4), (int)(height/10.5))));	//(X,Y,Width,Height)	
 		panel.setBackground(MEDIUMBLACK);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
+		//the big yellow frame
 		line = new JLabel();
 		line.setBounds((int)(width/42),(int)(height/35),(int)(width/2.94),(int)(height/1.17));
 		int x  = (int)(width/560);
 		line.setBorder(new MatteBorder(x,x,x,x,YELLOW));
 		
+		//congratulations text
 	    congrats = new JButton("CONGRATULATIONS!");
 		congrats.setFont(CONGRATS);
 		congrats.setForeground(YELLOW);
@@ -67,25 +74,28 @@ public class SudokuWin {
 		int dimx = (int)(width/3.36);
 		int dimy = (int)(height/16.15);
 		
+		//you win text
 		win = new JButton("YOU WIN!");
 		win.setFont(CONGRATS);	
 		win.setForeground(YELLOW);
 		win.setBounds((int)(width/22.4),(int)(height/2.88),dimx,dimy);
 		win.setBorderPainted(false);
 		
+		//one more text
 		onemore = new JButton("PLAY ONE MORE?");
-		onemore.setFont(One);	
+		onemore.setFont(option);	
 		onemore.setForeground(WHITE);
 		onemore.setBounds((int)(width/19.76),(int)(height/2.36),dimx,dimy);
 		onemore.setBorderPainted(false);
 		
-		int optionx = (int)(height/1.92);
+		int optiony = (int)(height/1.92);
 		int optionwidth = (int)(width/12);
 		int optionheight = (int)(height/17.5);
 		
+		//the no and yes button
 		no = new JButton("NO");
 		no.setFont(option);
-		no.setBounds((int)(width/10.5),optionx,optionwidth,optionheight);
+		no.setBounds((int)(width/10.5),optiony,optionwidth,optionheight);
 		no.setForeground(SUPERBLACK);
 		no.setBackground(YELLOW);
 		no.setOpaque(true);
@@ -93,7 +103,7 @@ public class SudokuWin {
 		
 		yes = new JButton("YES");
 		yes.setFont(option);
-		yes.setBounds((int)(width/4.8),optionx,optionwidth,optionheight);
+		yes.setBounds((int)(width/4.8),optiony,optionwidth,optionheight);
 		yes.setForeground(SUPERBLACK);
 		yes.setBackground(YELLOW);
 		yes.setOpaque(true);
@@ -109,6 +119,7 @@ public class SudokuWin {
 		frame.add(panel);	
 		frame.setVisible(true);
 		
+		//hovering effect for yes
 		yes.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
 		        yes.setBackground(ORANGE);
@@ -119,6 +130,7 @@ public class SudokuWin {
 		        yes.setForeground(SUPERBLACK);
 		    }
 		});
+		//when yes is clicked, dispose current frame and SudokuStart will come up
 		yes.addActionListener(new ActionListener() {
 
 			@Override
@@ -130,7 +142,7 @@ public class SudokuWin {
 			
 		});
 			
-		
+		//no hovering effect
 		no.addMouseListener(new java.awt.event.MouseAdapter() {
 		    public void mouseEntered(java.awt.event.MouseEvent evt) {
 		        no.setBackground(ORANGE);
@@ -141,11 +153,11 @@ public class SudokuWin {
 		        no.setForeground(SUPERBLACK);
 		    }
 		});
+		//when no is clicked, all frame is disposed
 		no.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				frame.dispose();
 			}
 			
