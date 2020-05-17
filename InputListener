@@ -1,58 +1,116 @@
+package controller;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import controller.SudokuGame;
 import javax.swing.JTextField;
+import view.SudokuWin;
+import view.SudokuHints;
 
 public class InputListener implements KeyListener,FocusListener{
-	private JTextField[][] cells = SudokuGame.getCells();
-	private int rowSelected, colSelected;
-	private int[][] board = SudokuGame.getBoard(); //the puzzle
-	private int[][] sudoku = SudokuGame.getSudokuBoard(); //the sudoku with unique solution
-	private boolean isGameEnded = false;
-	private boolean selecthint;
-	private static int hintleft;
-	private static int hintclick;
-
-
 	
+	private static JTextField[][] cells = SudokuGame.getCells(); //JTextField imported from SudokuGame
+	private static int rowSelected; //current selected row/col by the user
+	private static int colSelected;
+	
+	private static int[][] board = SudokuGame.getBoard(); //the puzzle (incomplete sudoku) updated with each user's input 
+	private static int[][] sudoku = SudokuGame.getSudokuBoard(); //the sudoku with unique solution
+	
+	private boolean isGameEnded = false; //check if Game has ended
+	
+	private static boolean selecthint; //check if Hint Button is selected
+	private static int hintleft; //numbers of hint left 
+	
+    public static final Color DARKRED = new Color(92,44,35);
+    public static final Color YELLOWOpaque = new Color(83,77,54);
+    public static final Color MEDIUMBLACK = new Color(34, 35, 39);
+    
+    //object "check" from class "checkWrongAnswer" to check current input
+    public static int [][] wrong,checkCells; //2D array locating the locations of wrong answers [x][2]
+    
+    public int count = -1;
+    public ArrayList<int[][]> wronglist = new ArrayList<int[][]>();
+    public boolean isWrong = false;
+	
+    @Override
+	public void focusGained(FocusEvent e) {
+
+    	//activated when the user selects the JTextField
+		JTextField source = (JTextField) e.getSource(); //finding the source of the input
+		rowSelected = -1; //initialize row to -1
+	    colSelected = -1; //initialize col to -1
+	    selecthint = SudokuGame.getUseHint(); //boolean UseHint
+	    hintleft = SudokuGame.getHintLeft(); //int num of hints left
+
+	    boolean found = false; 
+	    for (int row = 0; row < 9 && !found; ++row) {
+	    	for (int col = 0; col < 9 && !found; ++col) {
+	            if (cells[row][col] == source) { //check if row and col is the source
+	               rowSelected = row; //set global variable rowSelected to be the row of the source
+	               colSelected = col;
+	               found = true;  //set found to be true and break out of the loop	           
+	               }
+	         }
+	    }
+	    //set format for selected cell, background to yellow
+		cells[rowSelected][colSelected].setBackground(YELLOWOpaque);
+		//using hint, checking if: hint is selected and if there's hint left
+		
+	    	    	
+	}
+
+
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-            cells[rowSelected][colSelected].setText("");
-        } 
-		if ((e.getKeyChar() >= '1' && e.getKeyChar() <= '9')) {
+		//check for validity of user's input when typing
+		if ((e.getKeyChar() >= '1' && e.getKeyChar() <= '9')) { //only allows digits inputs from 1-9
 			cells[rowSelected][colSelected].setEditable(true);
-			cells[rowSelected][colSelected].setText("");
+			board[rowSelected][colSelected] = Integer.parseInt(String.valueOf(e.getKeyChar()));
+			cells[rowSelected][colSelected].setText(""); //avoids multiple entries like 9999, only 1 digit
+			checkWrongAnswer(rowSelected,colSelected);
+
 		}
-		else {
-             cells[rowSelected][colSelected].setEditable(false);
-        }
-	    
+		else { //for other inputs, set the current cell to be non-editable
+		    cells[rowSelected][colSelected].setEditable(false);
+		}
 	}	
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-    
+		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if(!cells[rowSelected][colSelected].getText().contentEquals("")) {
+		//getting data when the user has release the key
+		if(!cells[rowSelected][colSelected].getText().contentEquals("")) { //if cell is not empty, parse string to [][]board
 			board[rowSelected][colSelected] = Integer.parseInt(cells[rowSelected][colSelected].getText());
-			isGameEnded = isGameEnded();
+			isGameEnded = isGameEnded(); //check if this current move wins the game
+			if(isGameEnded) { //if wins the game, dispose current frame and output the winning page
+				SudokuGame.disposeFrame();
+				new SudokuWin();
+			}
 		}
-		if(isGameEnded) {
-			SudokuGame.disposeFrame();
-			new SudokuWin();
+		else { //if cell is empty set the board at that location to be equal to 0
+			board[rowSelected][colSelected] = 0; 
 		}
+		checkWrongAnswer(rowSelected,colSelected);
+	}	
+	
+	@Override
+	public void focusLost(FocusEvent e) {
+		//when cell isn't selected anymore, reset its background
+		cells[rowSelected][colSelected].setBackground(MEDIUMBLACK);
 	}
 
-	public boolean isGameEnded() {
-		isGameEnded = true;
+	public boolean isGameEnded() { //method for checking whether the game is won
+		isGameEnded = true; 
 		for(int i = 0; i < 9; i++) {
 			for(int j = 0; j < 9; j++) {
-				if(board[i][j] != sudoku[i][j]) {
+				if(board[i][j] != sudoku[i][j]) { // if any cell doesn't match the answer break
 					isGameEnded = false;
 					break;
 				}
@@ -60,36 +118,91 @@ public class InputListener implements KeyListener,FocusListener{
 		}
 		return isGameEnded;
 	}
+	public void checkWrongAnswer(int row, int col) {
+		int smallRow = row/3;
+	    int smallCol = col/3;
+	    int bigRow = smallRow*3;
+	    int bigCol = smallCol*3;
+	    isWrong = false;
+		if(board[row][col] != 0) {
+			for(int c = 0; c < 9; c++) {
+				if(col != c ) {
+					if(board[row][col] == board[row][c] ) {
+						SudokuGame.setWrongCell(row, c, cells[row][c].isEditable());
+					}
+					else {
+						SudokuGame.resetCell(row, c, cells[row][c].isEditable());
+					}
+				}
+			}
+			
+			for(int r = 0; r < 9; r++) {
+				if(row != r ) {
+					if(board[row][col] == board[r][col]) {
+						SudokuGame.setWrongCell(r, col,cells[r][col].isEditable());
+	    				}
+					else {
+						SudokuGame.resetCell(r, col, cells[r][col].isEditable());
+					}
+				}
 
-	@Override
-	public void focusGained(FocusEvent e) {
-		// TODO Auto-generated method stub
-	    	JTextField source = (JTextField) e.getSource();
-	    	rowSelected = -1;
-	    	colSelected = -1;
-	    	selecthint = SudokuGame.getUseHint();
-	    	hintleft = SudokuGame.getHintLeft();
-	    	hintclick = SudokuGame.getHintClick();
-
-	    	boolean found = false;
-	    	for (int row = 0; row < 9 && !found; ++row) {
-	    		for (int col = 0; col < 9 && !found; ++col) {
-	            	if (cells[row][col] == source) {
-	               		rowSelected = row;
-	               		colSelected = col;
-	               		found = true;  	           
-	               		}
-	         	}
-	    	}
-	    if(selecthint && hintleft>0 && hintclick%2!=0) {
-			cells[rowSelected][colSelected].setText(sudoku[rowSelected][colSelected]+"");
-			cells[rowSelected][colSelected].setEditable(false);
-			SudokuGame.resetHint();
-			}	
+			}
+			for(int sRow =bigRow; sRow<bigRow+3; sRow++) {
+		    	 for(int sCol = bigCol; sCol<bigCol+3; sCol++) {
+		    		 if(sRow!=row || sCol!=col) {
+		    			 if(board[row][col]==board[sRow][sCol] ) {
+		    				SudokuGame.setWrongCell(sRow, sCol,cells[sRow][sCol].isEditable());
+			    			isWrong = true;
+			    			}
+		    			 else {
+			    			SudokuGame.resetCell(sRow, sCol, cells[sRow][sCol].isEditable());
+		    			 }
+		    		 }
+		    	 }
+			}
+			
 		}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		// TODO Auto-generated method stub
+		else {
+			for(int c = 0; c < 9; c++) {
+				if(col != c) {
+					SudokuGame.resetCell(row, c, cells[row][c].isEditable());
+				}
+			}
+			for(int r = 0; r < 9; r++) {
+				if(row != r) {
+					SudokuGame.resetCell(r, col, cells[r][col].isEditable());
+				}
+			}
+			for(int sRow =bigRow; sRow<bigRow+3; sRow++) {
+		    	 for(int sCol = bigCol; sCol<bigCol+3; sCol++) {
+		    		 if(sRow!=row || sCol!=col) {
+		    			SudokuGame.resetCell(sRow, sCol, cells[sRow][sCol].isEditable());
+		    		 }
+		    	 }
+			}
+			isWrong = false;
+		}
+	}
+	
+	public static void useHint() {
+		if(selecthint && hintleft>0) {
+			cells[rowSelected][colSelected].setText(sudoku[rowSelected][colSelected]+""); //set selected row to correct ans
+			board[rowSelected][colSelected] = sudoku[rowSelected][colSelected];
+			cells[rowSelected][colSelected].setEditable(false); //make it not editable
+			SudokuGame.resetCell(rowSelected, colSelected, cells[rowSelected][colSelected].isEditable());
+			SudokuGame.updateHint(); //reset the hint in SudokuGame
+		}	
+		else if(selecthint && hintleft <= 0){
+			new SudokuHints();
+		}
+	}
+	
+	public static int[][] getBoard() {
+		return board;
+	}
+	public static void resetInputListener(int[][] newboard, int[][] newsudoku) {
+		board = newboard;
+		sudoku = newsudoku;
 	}
 }
+
