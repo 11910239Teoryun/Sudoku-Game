@@ -1,12 +1,18 @@
-import view.SudokuStart;
+package game;
 
+import java.io.IOException;
+import controller.SudokuStart;
+
+//Where to run the game
+//it opens SudokuStart
 
 public class Sudoku {
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws IOException {
 
         SudokuStart view = new SudokuStart();
         view.setVisible(true);
         
 	}
-
 }
+
