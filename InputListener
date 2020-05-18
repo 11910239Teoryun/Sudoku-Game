@@ -1,4 +1,5 @@
 package controller;
+
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -14,11 +15,12 @@ public class InputListener implements KeyListener,FocusListener{
 	private static JTextField[][] cells = SudokuGame.getCells(); //JTextField imported from SudokuGame
 	private static int rowSelected; //current selected row/col by the user
 	private static int colSelected;
+	private static boolean useHint;
 	
 	private static int[][] board = SudokuGame.getBoard(); //the puzzle (incomplete sudoku) updated with each user's input 
 	private static int[][] sudoku = SudokuGame.getSudokuBoard(); //the sudoku with unique solution
 	private static char[][] statusboard = SudokuGame.getStatusBoard(); //the sudoku with unique solution
-
+	private static int[][] wrongBoard = SudokuGame.getWrongBoard();
 	
 	private boolean isGameEnded = false; //check if Game has ended
 	
@@ -34,7 +36,7 @@ public class InputListener implements KeyListener,FocusListener{
     public static int [][] wrong,checkCells; //2D array locating the locations of wrong answers [x][2]
     
     public boolean isWrong = false;
-    private ArrayList<int[]> location = new ArrayList<int[]>();
+    private static ArrayList<int[]> location = new ArrayList<int[]>();
 	
     @Override
 	public void focusGained(FocusEvent e) {
@@ -57,9 +59,16 @@ public class InputListener implements KeyListener,FocusListener{
 	               }
 	         }
 	    }
-	    
+	    if(useHint) {
+	    	checkWrongAnswer();
+	    }
 	    //set format for selected cell, background to yellow
-		cells[rowSelected][colSelected].setBackground(YELLOWOpaque);
+	    if(board[rowSelected][colSelected] == 0) {
+			cells[rowSelected][colSelected].setBackground(YELLOWOpaque);
+	    }
+	    if(location.size() > 1) {
+	    	checkWrongAnswer();
+	    }
 		//using hint, checking if: hint is selected and if there's hint left
 	}
 
@@ -101,12 +110,17 @@ public class InputListener implements KeyListener,FocusListener{
 		temp = new int[] {rowSelected,colSelected, board[rowSelected][colSelected]};
 		location.add(temp);
 		checkWrongAnswer();
+		if(board[rowSelected][colSelected] == 0) {
+			cells[rowSelected][colSelected].setBackground(YELLOWOpaque);
+		}
 	}	
 	
 	@Override
 	public void focusLost(FocusEvent e) {
 		//when cell isn't selected anymore, reset its background
-		cells[rowSelected][colSelected].setBackground(MEDIUMBLACK);
+		if(board[rowSelected][colSelected] == 0) {
+			cells[rowSelected][colSelected].setBackground(MEDIUMBLACK);
+		}
 	}
 
 	public boolean isGameEnded() { //method for checking whether the game is won
@@ -121,34 +135,42 @@ public class InputListener implements KeyListener,FocusListener{
 		}
 		return isGameEnded;
 	}
-	public void checkWrongAnswer() {
+	public static void checkWrongAnswer() {
 		int[] cellinfo = location.get(location.size()-1);
 		int row = cellinfo[0];
 		int col = cellinfo[1];
 		int currval = cellinfo[2];
+		int[] lastinfo = new int[3];
+		if(location.size() == 1) {
+			lastinfo = location.get(location.size()-1);
+		}
+		else {
+			lastinfo = location.get(location.size()-2);
+		}
+
 		
-		if(currval == 0 || currval == sudoku[row][col]) {
-			System.out.print(true);
+		if(currval == 0 || board[row][col] == sudoku[row][col]) {
 			int last = findLastValue(row,col);
-			System.out.print("row " + row + " col " + col + " value " + last);
 			resetWrongAnswer(row,col,last);
 		}
 		else {
-			System.out.print("row " + row + " col " + col + " value " + currval);
+			if(lastinfo[0] == row && lastinfo[1] == col) {
+				resetWrongAnswer(row,col,lastinfo[2]);
+			}
+			int last = findLastValue(row,col);
+			resetWrongAnswer(row,col,last);
+
 			checkWrongAnswer(row,col,currval);
 		}
 	}
 
-	private int findLastValue(int row, int col) {
+	private static int findLastValue(int row, int col) {
 		// TODO Auto-generated method st
 		int value = 0;
 		boolean isLocationEqual = false;
 		int[] a = new int[3];
-		System.out.print("row "+ row + " col " + col);
 		int count = location.size();
-		System.out.print("size " + location.size());
 		while(!isLocationEqual && count > 0) {
-			System.out.print("\n count " + count+" ");
 			a = location.get(count-1);
 			if(a[0] == row && a[1] == col)  {
 				if(a[2] != 0) {
@@ -156,88 +178,176 @@ public class InputListener implements KeyListener,FocusListener{
 					isLocationEqual = true;
 				}
 			}
-				count--;		
+			count--;		
 		}		
 		return value;
 	}
 
 
-	private void resetWrongAnswer(int row, int col, int lastwronginput) {
+	private static void resetWrongAnswer(int row, int col, int lastwronginput) {
 		// TODO Auto-generated method stub
 		int smallRow = row/3;
 	    int smallCol = col/3;
 	    int bigRow = smallRow*3;
 	    int bigCol = smallCol*3;
+	    
+	    //checking the row for duplicates
+	    int count = 0;
 		for(int c = 0; c < 9; c++) {
-			if(col != c ) {
-				if(lastwronginput == board[row][c]) {
-					SudokuGame.resetCell(row, c, statusboard[row][c] == 'T');
-				}
+			if(lastwronginput == board[row][c]) {
+				count++;
 			}
 		}
-		
-		for(int r = 0; r < 9; r++) {
-			if(row != r ) {
-				if(lastwronginput == board[r][col]) {
-					SudokuGame.resetCell(r, col, statusboard[r][col] == 'T');
+		//if only one duplicate change that
+		if(count == 1) {
+			for(int c = 0; c < 9; c++) {
+				if(c >= bigCol && c < bigCol + 3) {
+					continue;
+				}
+				if(lastwronginput == board[row][c]) {
+					SudokuGame.resetCell(row, c, statusboard[row][c] == 'T');
+					wrongBoard[row][c] = 0;
 				}
 			}
 
 		}
+		//if more than one, only reset the current cell
+		else if(count > 1) {
+			SudokuGame.resetCell(row, col, statusboard[row][col] == 'T');
+		}
+		
+		//checking the column for duplicates
+		count = 0;
+		for(int r = 0; r < 9; r++) {
+			if(lastwronginput == board[r][col]) {
+				count++;
+			}		
+		}
+		if(count == 1) {
+			for(int r = 0; r < 9; r++) {
+				if(r >= bigRow && r < bigRow + 3) {
+					continue;
+				}
+				if(lastwronginput == board[r][col]) {
+					SudokuGame.resetCell(r, col, statusboard[r][col] == 'T');
+					wrongBoard[r][col] = 0;
+				}
+			}
+		}
+		else if(count > 1) {
+			SudokuGame.resetCell(row, col, statusboard[row][col] == 'T');
+		}
+		
+		//checking the subgrid for duplicates
+		count = 0;
+		for(int sRow = bigRow; sRow < bigRow + 3; sRow++) {
+	    	 for(int sCol = bigCol; sCol < bigCol + 3; sCol++) {
+	    		 if(lastwronginput == board[sRow][sCol]) {
+	    			 count++;
+	    		 }
+	    	 }
+	    }
+		if(count == 1) {
+			SudokuGame.resetCell(row, col, statusboard[row][col] == 'T');
+
+			for(int sRow = bigRow; sRow < bigRow + 3; sRow++) {
+		    	 for(int sCol = bigCol; sCol < bigCol + 3; sCol++) {
+		    		 if(lastwronginput == board[sRow][sCol]) {
+		    			 SudokuGame.resetCell(sRow, sCol, statusboard[sRow][sCol] == 'T');
+		    			 wrongBoard[sRow][sCol] = 0;
+		    		 }
+		    	 }
+		    }
+		}
+		else {
+			SudokuGame.resetCell(row, col, statusboard[row][col] == 'T');
+
+		}
+	}
+
+
+	private static void checkWrongAnswer(int row, int col, int lastwronginput) {
+		// TODO Auto-generated method stub
+		int smallRow = row/3;
+	    int smallCol = col/3;
+	    int bigRow = smallRow*3;
+	    int bigCol = smallCol*3;
+	    int count = 0;
+		for(int c = 0; c < 9; c++) {
+			if(col != c ) {
+				if(lastwronginput == board[row][c]) {
+					count++;
+				}
+			}
+		}
+
+		if(count >= 1) {
+			for(int c = 0; c < 9; c++) {
+					if(lastwronginput == board[row][c]) {
+						SudokuGame.setWrongCell(row, c, statusboard[row][c] == 'T');
+						wrongBoard[row][c] = 1;
+
+					}
+			}
+
+		}
+		
+		count = 0;
+		for(int r = 0; r < 9; r++) {
+			if(row != r ) {
+				if(lastwronginput == board[r][col]) {
+					SudokuGame.setWrongCell(r, col,statusboard[r][col] == 'T');
+					count++;
+    				}
+			}
+
+		}
+		if(count >= 1) {
+			for(int r = 0; r < 9; r++) {
+					if(lastwronginput == board[r][col]) {
+						SudokuGame.setWrongCell(r, col,statusboard[r][col] == 'T');
+						wrongBoard[r][col] = 1;
+
+	    			}
+			}
+		}
+		count = 0;
+		
 		for(int sRow = bigRow; sRow < bigRow + 3; sRow++) {
 	    	 for(int sCol = bigCol; sCol < bigCol + 3; sCol++) {
 	    		 if(sRow != row || sCol != col) {
 	    			 if(lastwronginput == board[sRow][sCol]) {
-	    				 SudokuGame.resetCell(sRow, sCol, statusboard[sRow][sCol] == 'T');
-					}
-	    		}
-	    	}
-	    }
-	}
-
-
-	private void checkWrongAnswer(int row, int col, int lastwronginput) {
-		// TODO Auto-generated method stub
-		int smallRow = row/3;
-	    int smallCol = col/3;
-	    int bigRow = smallRow*3;
-	    int bigCol = smallCol*3;
-		for(int c = 0; c < 9; c++) {
-			if(col != c ) {
-				if(lastwronginput == board[row][c]) {
-					SudokuGame.setWrongCell(row, c, statusboard[row][c] == 'T');
-				}
-			}
-		}
-		
-		
-		for(int r = 0; r < 9; r++) {
-			if(row != r ) {
-				if(board[row][col] == board[r][col]) {
-					SudokuGame.setWrongCell(r, col,statusboard[r][col] == 'T');
-    			}
-			}
-
-		}
-		for(int sRow = bigRow; sRow < bigRow + 3; sRow++) {
-	    	 for(int sCol = bigCol; sCol < bigCol + 3; sCol++) {
-	    		 if(sRow != row || sCol != col) {
-	    			 if(board[row][col] == board[sRow][sCol]) {
-	    				SudokuGame.setWrongCell(sRow, sCol, statusboard[sRow][sCol] == 'T');
+	    				 count++;
 	    			 }
 	    		 }
 	    	 }
 		}
-	}
+		if(count >= 1) {
+			for(int sRow = bigRow; sRow < bigRow + 3; sRow++) {
+		    	 for(int sCol = bigCol; sCol < bigCol + 3; sCol++) {
+		    		if(lastwronginput == board[sRow][sCol]) {
+		    			SudokuGame.setWrongCell(sRow, sCol, statusboard[sRow][sCol] == 'T');
+					wrongBoard[sRow][sCol] = 1;
+		    		}		    		 
+			} 
+		    	 }
+			}
+
+		}
+	
 
 	public static void useHint() {
 		if(selecthint && hintleft>0) {
+			temp = new int[]{rowSelected,colSelected,board[rowSelected][colSelected]};
+			location.add(temp);
 			cells[rowSelected][colSelected].setText(sudoku[rowSelected][colSelected]+""); //set selected row to correct ans
 			board[rowSelected][colSelected] = sudoku[rowSelected][colSelected];
 			cells[rowSelected][colSelected].setEditable(false); //make it not editable
 			statusboard[rowSelected][colSelected] = 'F';
 			SudokuGame.resetCell(rowSelected, colSelected, cells[rowSelected][colSelected].isEditable());
 			SudokuGame.updateHint(); //reset the hint in SudokuGame
+			useHint = true;
+			InputListener.checkWrongAnswer();
 		}	
 		else if(selecthint && hintleft <= 0){
 			new SudokuHints();
@@ -247,10 +357,12 @@ public class InputListener implements KeyListener,FocusListener{
 		// TODO Auto-generated method stub
 		return board;
 	}
-	public static void resetInputListener(int[][] newboard, int[][] newsudoku, char[][] newstatus) {
+	public static void resetInputListener(int[][] newboard, int[][] newsudoku, char[][] newstatus, int[][] newwrongBoard, ArrayList<int[]> newlocation) {
 		board = newboard;
 		sudoku = newsudoku;
 		statusboard = newstatus;
+		wrongBoard = newwrongBoard;
+		location = newlocation;
 		
 	}
 }
