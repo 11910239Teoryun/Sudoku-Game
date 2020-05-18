@@ -11,9 +11,10 @@ public class SudokuOpen {
 	
 	JFileChooser fileChooser = new JFileChooser();
 	JFrame parentFrame = new JFrame();
-	public int level = 0;
+	public int level = 0, hintLeft = 0;
 	
-	public SudokuOpen(int[][] solution, char[][] statusboard, int[][] savedboard, int hintleft) {
+	public SudokuOpen(int[][] solution, char[][] statusBoard, int[][] wrongBoard, int[][] savedBoard) {
+		
 		parentFrame = new JFrame();
 		fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
@@ -38,7 +39,15 @@ public class SudokuOpen {
 				temp = reader.nextLine();
 				for(int i = 0; i < 9; i++) {
 					for(int j = 0; j < 9; j++) {
-						statusboard[i][j] = temp.charAt(count);	
+						statusBoard[i][j] = temp.charAt(count);	
+						count++;
+					}
+				}
+				count=0;
+				temp = reader.nextLine();
+				for(int i = 0; i<9; i++) {
+					for(int j = 0; j<9; j++) {
+						wrongBoard[i][j] = Integer.parseInt(temp.substring(count,count+1));	
 						count++;
 					}
 				}
@@ -47,12 +56,13 @@ public class SudokuOpen {
 				temp = reader.nextLine();
 				for(int i = 0; i<9; i++) {
 					for(int j = 0; j<9; j++) {
-						savedboard[i][j] = Integer.parseInt(temp.substring(count,count+1));	
+						savedBoard[i][j] = Integer.parseInt(temp.substring(count,count+1));	
 						count++;
 					}
 				}
+				
 				//retrieve the number of hints left
-				hintleft = Integer.parseInt(reader.nextLine());
+				hintLeft = Integer.parseInt(reader.nextLine());
 				reader.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -62,6 +72,10 @@ public class SudokuOpen {
 	
 	public int getGameLevel() {
 		return level;
+	}
+	
+	public int getHintLeft() {
+		return hintLeft;
 	}
 
 }
