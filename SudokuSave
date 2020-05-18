@@ -17,7 +17,7 @@ public class SudokuSave {
 	private JFileChooser fileChooser;
 	private File fileToSave;
 	
-	public SudokuSave(int mode, int level, int[][] sudoku, char[][] statusboard, int[][] board, int hintleft) {
+	public SudokuSave(int mode, int level, int[][] sudoku, char[][] statusBoard, int[][] wrongBoard,int[][] board, int hintLeft) {
 		
 		// parent component of the dialog
 		parentFrame = new JFrame();
@@ -43,7 +43,14 @@ public class SudokuSave {
 				output.println();
 				for(int i = 0; i < 9; i++) {
 					for(int j = 0; j<9; j++) {
-						output.print(statusboard[i][j]);
+						output.print(statusBoard[i][j]);
+					}
+				}
+				//saved wrongBoard
+				output.println();
+				for(int i = 0; i < 9; i++) {
+					for(int j = 0; j<9; j++) {
+						output.print(wrongBoard[i][j]);
 					}
 				}
 				output.println();
@@ -56,7 +63,7 @@ public class SudokuSave {
 				}
 				//hints
 				output.println();
-				output.print(hintleft);
+				output.print(hintLeft);
 				output.close();
 				
 		    } catch (Exception e) {
