@@ -1,0 +1,62 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.MatteBorder;
+
+public class SudokuHints {
+	
+	//main components
+	private JPanel panel;
+	private JButton hints;
+	private JFrame frame;
+	
+	//colors
+	public static final Color SUPERBLACK = new Color(29, 29, 29);
+	public static final Color MEDIUMBLACK = new Color(34, 35, 39);
+	public static final Color WHITE = new Color(254,253,253);
+	public static final Color YELLOW = new Color(238,213,87);
+	
+	//dimensions of the screen
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int height = screenSize.height;
+    public int width = screenSize.width;
+    
+	//font
+	public Font HintFont = new Font("Helvetica Neue", Font.PLAIN, (int)(width/73));
+
+	public SudokuHints() {
+		
+		//creates a frame 
+		frame = new JFrame();		
+	    frame.setSize((int)(width/5.6),(int)(height/7));
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(SUPERBLACK);
+		
+		//creates a panel to add to the frame
+		panel = new JPanel();
+		panel.setBackground(MEDIUMBLACK);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		
+		//makes a button that is added to the frame
+		hints = new JButton("NO HINTS LEFT!");
+		hints.setForeground(WHITE); //setting font color
+		hints.setFont(HintFont);
+		hints.setBounds((int)(width/168),(int)(height/14),(int)(width/168),(int)(width/168)); //(X,Y,Width,Height)
+		int x  = (int)(width/560); //thickness of the border
+		hints.setBorder(new MatteBorder(x,x,x,x,YELLOW)); //sets the border of of the window to the color yellow
+		
+		//adding all components to the frame and setting it as visible
+		frame.add(panel);
+		frame.add(hints);
+		frame.setVisible(true);
+	
+	}
+	
+}
